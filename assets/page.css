@@ -35,3 +35,18 @@ footer { border-top: 1px solid var(--line); padding-block: 22px 40px; font-size:
 footer nav { justify-content: flex-start; }
 footer nav a { font-size: 14px; }
 @media (max-width: 380px) { nav { gap: 10px; } nav a { font-size: 15px; } }
+
+/* Board pages */
+.board-svg { width: 100%; max-width: 420px; height: auto; display: block; }
+.board-svg .tok { transition: transform .2s ease-out, opacity .2s; }
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0; max-width: 420px; }
+.facts b { display: block; font-size: 34px; font-weight: 600; letter-spacing: -.04em; line-height: 1.05; color: var(--ink); font-variant-numeric: tabular-nums; }
+.route { font-size: 24px; letter-spacing: .12em; color: var(--ink); word-break: break-word; }
+.spoiler { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 18px 0; border-top: 1px solid var(--line); }
+.spoiler:last-of-type { border-bottom: 1px solid var(--line); }
+.spoiler .reveal { font: inherit; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+.archive { list-style: none; padding: 0; margin: 0; }
+.archive li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); margin: 0; }
+.archive a { text-decoration: none; font-weight: 500; }
+.archive span { color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+.pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 28px; }

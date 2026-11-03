@@ -1,12 +1,16 @@
 // Builds the text pages (how to play, about, contact, thanks, privacy) with a shared layout.
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const C = require('../engine.js');
+const B = require('../assets/board.js');
 const SITE = 'https://catchotto.com';
 const GOAT = '<script data-goatcounter="https://catchotto.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>';
 const ADS = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4913143800554205" crossorigin="anonymous"></script>';
-const NAV = [['/how-to-play/', 'How to play'], ['/about/', 'About'], ['/contact/', 'Contact']];
-const FOOT = [['/', 'Play today’s board'], ['/how-to-play/', 'How to play'], ['/about/', 'About'], ['/contact/', 'Contact'], ['/privacy/', 'Privacy policy']];
+const NAV = [['/how-to-play/', 'How to play'], ['/hint/', 'Hint'], ['/board/', 'Archive']];
+const FOOT = [['/', 'Play today’s board'], ['/how-to-play/', 'How to play'], ['/hint/', 'Today’s hint'], ['/board/', 'Past boards'], ['/about/', 'About'], ['/contact/', 'Contact'], ['/privacy/', 'Privacy policy']];
 
-function page({ path, title, description, label, h1, body, noindex, ads = true }) {
+function page({ path, title, description, label, h1, body, noindex, ads = true, scripts = '', jsonld = '' }) {
   const nav = NAV.map(([h, t]) => `<a href="${h}"${h === path ? ' aria-current="page"' : ''}>${t}</a>`).join('');
   const foot = FOOT.map(([h, t]) => `<a href="${h}">${t}</a>`).join('');
   return `<!doctype html>
@@ -30,7 +34,7 @@ function page({ path, title, description, label, h1, body, noindex, ads = true }
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/assets/page.css">
-${ads ? ADS + '\n' : ''}${GOAT}
+${jsonld}${ads ? ADS + '\n' : ''}${GOAT}
 </head>
 <body>
 <div class="wrap">
@@ -42,7 +46,7 @@ ${body}
 </main>
 <footer><nav aria-label="Site pages">${foot}</nav><span>Catch Otto © 2026. A small daily logic puzzle.</span></footer>
 </div>
-</body>
+${scripts}</body>
 </html>
 `;
 }
@@ -146,15 +150,109 @@ const pages = [
 <h2>Changes</h2>
 <p>We may update this policy from time to time. The date at the top shows when it was last changed.</p>` },
 ];
+// ---------- daily board pages ----------
+// A day's board is published once that day is over everywhere (UTC-12).
+const EPOCH = C.EPOCH;
+const finishedBefore = process.env.BUILD_DATE || new Date(Date.now() - 12 * 3600e3).toISOString().slice(0, 10);
+const days = [];
+for (let t = Date.parse(EPOCH + 'T12:00:00Z'); ; t += 864e5) {
+  const ds = new Date(t).toISOString().slice(0, 10);
+  if (ds >= finishedBefore) break;
+  days.push(ds);
+}
+const WEEKDAY = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const longDate = (ds) => { const d = new Date(ds + 'T12:00:00Z'); return `${WEEKDAY[d.getUTCDay()]} ${d.getUTCDate()} ${d.toLocaleString('en-GB', { month: 'long', timeZone: 'UTC' })} ${d.getUTCFullYear()}`; };
+const boards = days.map((ds) => {
+  const p = C.daily(ds), n = C.dayNumber(ds), level = C.dailyLevel(ds).name;
+  return { ds, n, p, level, caught: B.catchSquare(p, C) };
+});
+for (const b of boards) {
+  const { ds, n, p, level } = b;
+  const route = p.path.map((d) => B.ARROWS[d]).join(' ');
+  const words = p.path.map((d) => B.WORDS[d]);
+  const prev = boards.find((x) => x.n === n - 1), next = boards.find((x) => x.n === n + 1);
+  pages.push({
+    path: `/board/${n}/`, label: `Board #${n} · ${level}`,
+    title: `Catch Otto #${n} Answer – Perfect Route for ${longDate(ds)}`,
+    description: `The perfect route for Catch Otto #${n} (${longDate(ds)}): ${p.par} moves. You start on ${B.square(p.player)}, Otto starts on ${B.square(p.creature)}. Step by step solution.`,
+    h1: `Catch Otto #${n}.`,
+    body: `
+<p class="lead">${longDate(ds)}. ${/^[AEIOU]/.test(level) ? 'An' : 'A'} ${level.toLowerCase()} board. You start on ${B.square(p.player)} and Otto starts on ${B.square(p.creature)}. Columns are A to H, rows are 1 to 8 from the top.</p>
+<div class="facts"><div><span class="label">Perfect</span><b>${p.par}</b></div><div><span class="label">Level</span><b>${level}</b></div><div><span class="label">Caught on</span><b>${B.square(b.caught)}</b></div></div>
+<div id="viewer">${B.svg(p, '/assets/otto.svg')}</div>
+<p><button class="cta" id="play-route" type="button">Watch the perfect route</button></p>
+<h2>The perfect route</h2>
+<p class="route">${route}</p>
+<p>In words: ${words.join(', ')}. That catches Otto in ${p.par} moves, the fewest possible however well he runs.</p>
+<h2>How the catch works</h2>
+<p>Otto always takes the escape that keeps him free the longest, so the route has to cut off his options one by one. Watch how each move leaves him fewer ways out until he is trapped on ${B.square(b.caught)}.</p>
+<p><a class="cta" href="/">Play today’s board</a></p>
+<nav class="pager" aria-label="More boards">${prev ? `<a href="/board/${prev.n}/">← #${prev.n}</a>` : '<span></span>'}<a href="/board/">All boards</a>${next ? `<a href="/board/${next.n}/">#${next.n} →</a>` : '<span></span>'}</nav>`,
+    scripts: `<script src="/engine.js"></script><script src="/assets/board.js"></script>
+<script>
+(function () {
+  var p = Cornered.daily('${ds}'), btn = document.getElementById('play-route'), el = document.getElementById('viewer');
+  btn.addEventListener('click', function () { btn.disabled = true; OttoBoard.play(el, p, Cornered, function () { btn.disabled = false; btn.textContent = 'Watch again'; }); });
+})();
+</script>
+`,
+  });
+}
+pages.push({
+  path: '/board/', label: 'Archive', title: 'Catch Otto Archive – All Past Boards and Answers',
+  description: 'Every past Catch Otto board with its Perfect move count and the step by step solution.',
+  h1: 'Every board so far.',
+  body: `<p class="lead">Each board is published here once its day is over everywhere in the world, with the perfect route.</p>
+${boards.length ? `<ul class="archive">${boards.slice().reverse().map((b) => `<li><a href="/board/${b.n}/">#${b.n} · ${longDate(b.ds)}</a><span>${b.level} · perfect ${b.p.par}</span></li>`).join('')}</ul>` : '<p>The first board appears here tomorrow.</p>'}
+<p><a class="cta" href="/">Play today’s board</a></p>`,
+});
+pages.push({
+  path: '/hint/', label: 'Hint', title: 'Catch Otto Hint Today – Clues and Answer for Today’s Board',
+  description: 'Stuck on today’s Catch Otto? Get a gentle hint, the first moves, or the full perfect route for today’s board.',
+  h1: 'Stuck on today’s board?',
+  body: `<p class="lead" id="hint-intro">Pick how much help you want. Each hint reveals a little more.</p>
+<div class="facts"><div><span class="label">Board</span><b id="h-n">–</b></div><div><span class="label">Level</span><b id="h-level">–</b></div><div><span class="label">Perfect</span><b id="h-par">–</b></div></div>
+<div class="spoiler"><span class="label">Hint 1 · Where it ends</span><button class="reveal" data-k="1">Show hint</button><p id="hint-1" hidden></p></div>
+<div class="spoiler"><span class="label">Hint 2 · The first three moves</span><button class="reveal" data-k="2">Show hint</button><p id="hint-2" class="route" hidden></p></div>
+<div class="spoiler"><span class="label">Hint 3 · The full answer</span><button class="reveal" data-k="3">Show the answer</button><div id="hint-3" hidden><p id="hint-3-route" class="route"></p><div id="viewer"></div><p><button class="cta" id="play-route" type="button">Watch the perfect route</button></p></div></div>
+<p style="margin-top:28px"><a class="cta" href="/">Back to the game</a></p>
+<h2>About these hints</h2>
+<p>This page always shows the board for today in your own time zone, the same board you get on the game page. Past boards and their answers are in the <a href="/board/">archive</a>.</p>`,
+  scripts: `<script src="/engine.js"></script><script src="/assets/board.js"></script>
+<script>
+(function () {
+  var d = new Date(), pad = function (x) { return String(x).padStart(2, '0'); };
+  var ds = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  var p = Cornered.daily(ds), lvl = Cornered.dailyLevel(ds).name, end = OttoBoard.catchSquare(p, Cornered);
+  var r = Math.floor(end / 8), c = end % 8;
+  var area = (r < 3 ? 'top' : r > 4 ? 'bottom' : 'middle') + (c < 3 ? ' left' : c > 4 ? ' right' : '');
+  document.getElementById('h-n').textContent = '#' + Cornered.dayNumber(ds);
+  document.getElementById('h-level').textContent = lvl;
+  document.getElementById('h-par').textContent = p.par;
+  document.getElementById('hint-1').textContent = 'Otto gets caught in the ' + (area === 'middle' ? 'middle of the board' : area + ' part of the board') + ', on square ' + OttoBoard.square(end) + '.';
+  document.getElementById('hint-2').textContent = p.path.slice(0, 3).map(function (k) { return OttoBoard.ARROWS[k]; }).join(' ');
+  document.getElementById('hint-3-route').textContent = p.path.map(function (k) { return OttoBoard.ARROWS[k]; }).join(' ');
+  var el = document.getElementById('viewer'); el.innerHTML = OttoBoard.svg(p, '/assets/otto.svg');
+  document.querySelectorAll('.reveal').forEach(function (b) {
+    b.addEventListener('click', function () { document.getElementById('hint-' + b.dataset.k).hidden = false; b.hidden = true; });
+  });
+  var btn = document.getElementById('play-route');
+  btn.addEventListener('click', function () { btn.disabled = true; OttoBoard.play(el, p, Cornered, function () { btn.disabled = false; btn.textContent = 'Watch again'; }); });
+})();
+</script>
+`,
+});
+
 for (const p of pages) {
   const dir = new URL('..' + p.path, import.meta.url);
   mkdirSync(dir, { recursive: true });
   writeFileSync(new URL('index.html', dir), page(p));
 }
 const urls = ['/', ...pages.filter((p) => !p.noindex).map((p) => p.path)];
+const today = new Date().toISOString().slice(0, 10);
 writeFileSync(new URL('../sitemap.xml', import.meta.url), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${SITE}${u}</loc><lastmod>2026-11-03</lastmod></url>`).join('\n')}
+${urls.map((u) => { const b = boards.find((x) => u === `/board/${x.n}/`); return `  <url><loc>${SITE}${u}</loc><lastmod>${b ? b.ds : today}</lastmod></url>`; }).join('\n')}
 </urlset>
 `);
-console.log('built', pages.length, 'pages and sitemap');
+console.log('built', pages.length, 'pages (', boards.length, 'board pages ) and sitemap');

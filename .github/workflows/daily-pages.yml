@@ -1,0 +1,50 @@
+# Publishes yesterday's board page, the archive and the sitemap every day,
+# once the previous day is over in every time zone, and whenever the tools change.
+name: Daily pages
+
+on:
+  schedule:
+    - cron: '20 12 * * *'   # 12:20 UTC: the previous day has just ended in UTC-12
+  push:
+    branches: [main]
+    paths: ['engine.js', 'assets/board.js', 'tools/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: daily-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build pages
+        run: |
+          node tools/build.mjs
+          node tools/pages.mjs
+
+      - name: Commit and publish if anything changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git config user.name "Daily Golf"
+          git config user.email "349557219+Dailygolfgame@users.noreply.github.com"
+          git add -A
+          git commit -m "Update generated pages ($(date -u +%F))"
+          git push
+          # Pushes made with the workflow token don't start a Pages build on their own.
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/pages/builds" --silent || echo "Pages build request failed; the next push will publish."
