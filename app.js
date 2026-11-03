@@ -374,6 +374,16 @@
     open('dlg-unl');
   });
   $('unl-close').addEventListener('click', () => close('dlg-unl'));
+  // waitlist: sends the email to Formspree and confirms in place
+  $('notify-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = e.target, b = f.querySelector('button'), msg = $('notify-msg');
+    b.disabled = true; msg.textContent = 'Sending…';
+    fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } })
+      .then((r) => { if (!r.ok) throw 0; msg.textContent = 'Thanks. We will email you when Unlimited opens.'; f.querySelector('input[type=email]').value = ''; store.waitlist = true; save(); })
+      .catch(() => { msg.textContent = 'That did not go through. Check your connection and try again.'; })
+      .finally(() => { b.disabled = false; });
+  });
   $('btn-practice').addEventListener('click', () => {
     store.practiceDate = TODAY; save();
     close('dlg-unl');
