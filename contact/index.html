@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contact Catch Otto</title>
+<meta name="description" content="Get in touch with Catch Otto. Report a bug, suggest an idea or tell us about a board you loved.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://catchotto.com/contact/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Catch Otto">
+<meta property="og:title" content="Contact Catch Otto"><meta property="og:description" content="Get in touch with Catch Otto. Report a bug, suggest an idea or tell us about a board you loved.">
+<meta property="og:url" content="https://catchotto.com/contact/"><meta property="og:image" content="https://catchotto.com/og-image.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://catchotto.com/og-image.png">
+<meta name="theme-color" content="#efeeea">
+<meta name="google-adsense-account" content="ca-pub-4913143800554205">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/page.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4913143800554205" crossorigin="anonymous"></script>
+<script data-goatcounter="https://catchotto.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+<div class="wrap">
+<header><a class="brand" href="/"><img src="/assets/otto.svg" alt=""><span class="mark">Catch<br>Otto</span></a><nav aria-label="Site"><a href="/how-to-play/">How to play</a><a href="/about/">About</a><a href="/contact/" aria-current="page">Contact</a></nav></header>
+<main>
+<span class="label">Contact</span>
+<h1>Say hi.</h1>
+
+<p class="lead">Found a bug, have an idea or a board that drove you crazy? Send us a message.</p>
+<form id="contact-form" method="POST" action="https://formspree.io/f/mnppvezd">
+<input type="hidden" name="_subject" value="Catch Otto: new message">
+<input type="hidden" name="site" value="catchotto.com">
+<p style="display:none"><label>Don't fill this out: <input name="_gotcha" tabindex="-1" autocomplete="off"></label></p>
+<label for="n">Your name</label><input id="n" name="name" autocomplete="name" required>
+<label for="e">Your email, so we can reply</label><input id="e" name="email" type="email" autocomplete="email" required>
+<label for="m">Message</label><textarea id="m" name="message" rows="6" required></textarea>
+<button class="cta" type="submit">Send message</button>
+<p id="form-error" class="error" role="alert" hidden>The message could not be sent. Check your connection and try again.</p>
+</form>
+<script>
+// Sent with fetch so we can show our own thank-you page.
+(function () {
+  var f = document.getElementById('contact-form'), err = document.getElementById('form-error');
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var b = f.querySelector('button'); b.disabled = true; err.hidden = true;
+    fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } })
+      .then(function (r) { if (!r.ok) throw 0; location.href = '/thanks/'; })
+      .catch(function () { err.hidden = false; b.disabled = false; });
+  });
+})();
+</script>
+<h2>Good things to tell us</h2>
+<ul><li>A bug. Tell us your device and browser, and which board.</li><li>An idea for a new feature or a new game.</li><li>Anything that felt unfair or confusing.</li></ul>
+</main>
+<footer><nav aria-label="Site pages"><a href="/">Play today’s board</a><a href="/how-to-play/">How to play</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy policy</a></nav><span>Catch Otto © 2026. A small daily logic puzzle.</span></footer>
+</div>
+</body>
+</html>

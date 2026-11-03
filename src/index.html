@@ -99,6 +99,11 @@ article p, article li { margin: 0; color: var(--ink-dim); max-width: 60ch; }
 article strong { color: var(--ink); font-weight: 500; }
 article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; }
 
+.site-foot { border-top: 1px solid var(--line); padding-top: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--ink-dim); }
+.site-foot nav { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.site-foot a { color: var(--ink-dim); text-decoration: none; }
+.site-foot a:hover { color: var(--ink); }
+
 /* Dialogs */
 .scrim { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: center; z-index: 20;
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
@@ -210,6 +215,16 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
       <p><strong>Why are weekends so hard?</strong> Saturday and Sunday boards have few walls, and the first three moves are a trap. Each has one right answer. Get one wrong and Otto slips away.</p>
     </section>
   </article>
+
+  <footer class="site-foot">
+    <nav aria-label="Site pages">
+      <a href="/how-to-play/">How to play</a>
+      <a href="/about/">About</a>
+      <a href="/contact/">Contact</a>
+      <a href="/privacy/">Privacy policy</a>
+    </nav>
+    <span>Catch Otto © 2026. A small daily logic puzzle.</span>
+  </footer>
 </div>
 
 <div class="scrim" id="dlg-help" hidden>
