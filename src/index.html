@@ -1,0 +1,302 @@
+<title>Catch Otto</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Catch Otto is a free daily logic puzzle. Corner Otto, a clever little guy, on an 8×8 board in as few moves as you can. New board every day.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap">
+<style>
+/* Layout: one quiet column, left-aligned like an editorial page. Monochrome: warm grey paper, near-black ink, nothing else. Light only, by choice. */
+:root {
+  --bg: #efeeea;
+  --ink: #1a1a19;
+  --ink-dim: #6f6e69;
+  --line: #d6d4ce;
+  --tile: #f7f6f3;
+  --tile-2: #e6e4df;
+  --wall: #1a1a19;
+  --scrim: rgba(26, 26, 25, .35);
+  --font: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { background: var(--bg); }
+body {
+  color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.45; font-weight: 400;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px; -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; padding: 0; }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.label { font-size: 12px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-dim); }
+.link { font-size: 16px; color: var(--ink-dim); }
+.link:hover, .link.on { color: var(--ink); }
+.u { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; color: var(--ink); }
+
+/* Header */
+header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-top: 28px; }
+.brand { display: flex; align-items: center; gap: 8px; }
+.logo-otto { width: 38px; height: 38px; flex: none; display: block; }
+.logo-otto svg { width: 100%; height: 100%; overflow: visible; }
+.mark { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; line-height: 1.35; }
+nav { display: flex; align-items: center; gap: 14px; justify-content: flex-end; }
+@media (max-width: 380px) { nav { gap: 12px; } nav .link { font-size: 15px; } }
+
+/* Score */
+.score { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding-top: 34px; }
+.score div { display: flex; flex-direction: column; gap: 2px; }
+.score div:last-child { text-align: right; }
+.score .value { font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* Board */
+.board-frame { touch-action: none; border: 2px solid var(--ink); padding: 4px; }
+.board { position: relative; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 3px; aspect-ratio: 1; max-width: 100%; }
+.cell { border-radius: 2px; background: var(--tile); }
+.cell.alt { background: var(--tile-2); }
+.wall { position: absolute; z-index: 3; background: var(--wall); border-radius: 3px; pointer-events: none; }
+.wall.h { height: 5px; width: calc((100% - 21px) / 8 + 6px); }
+.wall.v { width: 5px; height: calc((100% - 21px) / 8 + 6px); }
+.cell.reach { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.token { position: absolute; width: calc((100% - 21px) / 8); height: calc((100% - 21px) / 8); display: grid; place-items: center; pointer-events: none; transition: left .16s ease-out, top .16s ease-out; }
+.you { z-index: 2; }
+.you svg, .otto svg { width: 100%; height: 100%; overflow: visible; }
+.you.hop svg { animation: hop .3s ease-out; }
+.otto { z-index: 1; transition-delay: .12s; }
+.otto svg { animation: bob 2.2s ease-in-out infinite; }
+.otto.caught svg { animation: squish .6s ease-in forwards; }
+.trail { position: absolute; width: calc((100% - 21px) / 8); height: calc((100% - 21px) / 8); display: grid; place-items: center; pointer-events: none; }
+.trail::after { content: ""; width: 10%; height: 10%; border-radius: 50%; background: var(--ink-dim); }
+.squeak { position: absolute; z-index: 3; pointer-events: none; font-size: 13px; font-weight: 500; color: var(--bg); background: var(--ink); padding: 2px 7px; transform: translate(-10%, -85%); animation: pop 1s ease-out forwards; white-space: nowrap; }
+@keyframes bob { 50% { transform: translateY(-5%); } }
+@keyframes hop { 40% { transform: scale(1.12); } }
+@keyframes squish { 30% { transform: scale(1.2, .7); } 100% { transform: scale(0); opacity: 0; } }
+@keyframes pop { 0% { opacity: 0; } 15%, 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-10%, -125%); } }
+.board.shake { animation: shake .25s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+/* Controls: links left, pad right */
+.controls { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.side { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-bottom: 6px; }
+.pad { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(2, 52px); gap: 6px; }
+.pad button { border: 1px solid var(--line); border-radius: 2px; display: grid; place-items: center; }
+.pad button:active { background: var(--tile-2); }
+.pad svg { width: 20px; height: 20px; stroke: var(--ink); stroke-width: 1.6; fill: none; }
+.pad .up { grid-column: 2; grid-row: 1; } .pad .left { grid-column: 1; grid-row: 2; } .pad .down { grid-column: 2; grid-row: 2; } .pad .right { grid-column: 3; grid-row: 2; }
+.nudge { animation: nudge 1.6s ease-in-out infinite; }
+@keyframes nudge { 50% { opacity: .35; } }
+.hint { font-size: 14px; color: var(--ink-dim); margin: 0; max-width: 40ch; }
+.foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-block: 18px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.foot span { font-size: 15px; letter-spacing: .14em; font-variant-numeric: tabular-nums; }
+
+/* Long-form content */
+article { display: flex; flex-direction: column; gap: 14px; padding-top: 40px; }
+article section { display: flex; flex-direction: column; gap: 14px; padding-bottom: 36px; }
+article h2 { margin: 0; font-size: 38px; font-weight: 600; letter-spacing: -.045em; line-height: 1.02; text-wrap: balance; }
+article p, article li { margin: 0; color: var(--ink-dim); max-width: 60ch; }
+article strong { color: var(--ink); font-weight: 500; }
+article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Dialogs */
+.scrim { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: center; z-index: 20;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.dialog { width: 100%; max-width: 420px; max-height: 100%; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 28px 24px; display: flex; flex-direction: column; gap: 18px; }
+.dialog h3 { margin: 0; font-size: 34px; font-weight: 600; letter-spacing: -.045em; line-height: 1.02; }
+.dialog p { margin: 0; color: var(--ink-dim); }
+.cta { background: var(--ink); color: var(--bg); padding: 13px 18px; border-radius: 2px; font-weight: 500; }
+.cta:disabled { opacity: .4; cursor: default; }
+.ghost { border: 1px solid var(--line); padding: 12px 18px; border-radius: 2px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > button { flex: 1; }
+.rules { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.rules li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; color: var(--ink-dim); }
+.rules b { color: var(--ink); font-weight: 500; }
+.dot { width: 34px; height: 34px; display: block; }
+.dot svg { width: 100%; height: 100%; overflow: visible; }
+.dot.f { color: var(--wall); }
+.dot.s { width: 26px; height: 26px; margin: 4px; border: 1.5px dashed var(--ink-dim); border-radius: 50%; }
+.result-big { font-size: 64px; font-weight: 600; letter-spacing: -.05em; line-height: .95; font-variant-numeric: tabular-nums; }
+.stars { font-size: 22px; letter-spacing: 6px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stats b { display: block; font-size: 30px; font-weight: 600; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.plans { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.plan { padding: 14px 0; display: flex; flex-direction: column; gap: 2px; }
+.plan + .plan { border-left: 1px solid var(--line); padding-left: 16px; }
+.plan b { font-size: 28px; font-weight: 600; letter-spacing: -.04em; }
+.plan span { font-size: 14px; color: var(--ink-dim); }
+.perks { margin: 0; padding-left: 18px; color: var(--ink-dim); display: flex; flex-direction: column; gap: 4px; }
+.share-text { font-size: 14px; white-space: pre; border-left: 2px solid var(--ink); padding: 4px 0 4px 14px; overflow-x: auto; user-select: all; font-variant-numeric: tabular-nums; }
+.toast { position: fixed; left: 50%; bottom: calc(28px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 2px; font-size: 14px; z-index: 30; white-space: nowrap; }
+.countdown { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Look editor */
+.look-top { display: flex; gap: 18px; align-items: center; }
+.look-preview { width: 92px; height: 92px; flex: none; background: var(--tile); display: grid; place-items: center; border-radius: 2px; }
+.look-preview svg { width: 80px; height: 80px; }
+.look-rows { display: flex; flex-direction: column; gap: 14px; }
+.look-row { display: flex; flex-direction: column; gap: 8px; }
+.look-label { font-size: 12px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-dim); }
+.look-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.look-opt { width: 44px; height: 44px; border-radius: 2px; border: 1px solid var(--line); background: var(--tile); padding: 2px; display: grid; place-items: center; }
+.look-opt svg { width: 100%; height: 100%; }
+.look-opt.swatch { width: 32px; height: 32px; border-radius: 50%; background: var(--sw); }
+.look-opt.on { outline: 1.5px solid var(--ink); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) { .token { transition: none; } .token svg, .nudge { animation: none !important; } }
+@media (max-width: 380px) { .pad { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(2, 44px); } .score .value { font-size: 32px; } nav { gap: 12px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="logo-otto" data-art="otto"></span><p class="mark">Catch<br>Otto</p></div>
+    <nav>
+      <button class="link" id="btn-help">Rules</button>
+      <button class="link" id="btn-look">Look</button>
+      <button class="link" id="btn-stats">Stats</button>
+    </nav>
+  </header>
+
+  <div class="score">
+    <div><span class="label">Moves</span><span class="value" id="moves">0</span></div>
+    <div><span class="label">Time</span><span class="value" id="time">0:00</span></div>
+    <div><span class="label">Perfect</span><span class="value" id="par">0</span></div>
+  </div>
+
+  <div class="board-frame" id="frame">
+    <div class="board" id="board" role="grid" aria-label="Game board"></div>
+  </div>
+
+  <div class="controls">
+    <div class="side">
+      <button class="u" id="btn-reset">Restart</button>
+      <button class="u" id="btn-daily" hidden>Back to daily</button>
+      <button class="u" id="btn-result" hidden>Result</button>
+    </div>
+    <div class="pad" aria-label="Move">
+      <button class="up" data-dir="1" aria-label="Up"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+      <button class="left" data-dir="4" aria-label="Left"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button class="down" data-dir="3" aria-label="Down"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+      <button class="right" data-dir="2" aria-label="Right"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+  <p class="hint">Swipe, use the arrows, or tap a square next to you. There is no undo. Restarting is free, but the clock keeps running.</p>
+
+  <div class="foot">
+    <button class="u" id="btn-unlimited">Play more boards</button>
+    <span id="daynum"></span>
+  </div>
+
+  <article>
+    <section>
+      <span class="label">Introduction</span>
+      <h2>A small daily puzzle about catching Otto.</h2>
+      <p>Otto is a clever little guy in jeans and a white T-shirt. Every time you take a step, he takes one too. Chasing him head-on never works. You have to think ahead and trap him.</p>
+    </section>
+    <section>
+      <span class="label">How to play</span>
+      <ol>
+        <li><strong>Move one square</strong> up, down, left or right. You cannot step through a wall.</li>
+        <li><strong>Otto answers every move.</strong> He always picks the escape that keeps him free the longest. Slip up and he can run circles around the walls forever. When that happens, restart.</li>
+        <li><strong>Catch him</strong> by stepping onto his square. Your score is your time and your moves.</li>
+      </ol>
+    </section>
+    <section>
+      <span class="label">Questions</span>
+      <p><strong>Is there always a solution?</strong> Yes. A solver checks every board and finds the shortest possible catch. That number is Perfect.</p>
+      <p><strong>Is Otto random?</strong> No. Everyone plays the same Otto, so times are fair to compare.</p>
+      <p><strong>When is the next board?</strong> At midnight in your time zone. Monday is easiest and the boards get harder through the week.</p>
+      <p><strong>Why are weekends so hard?</strong> Saturday and Sunday boards have few walls, and the first three moves are a trap. Each has one right answer. Get one wrong and Otto slips away.</p>
+    </section>
+  </article>
+</div>
+
+<div class="scrim" id="dlg-help" hidden>
+  <div class="dialog" role="dialog" aria-labelledby="help-title">
+    <span class="label">Rules</span>
+    <h3 id="help-title">Catch Otto.</h3>
+    <ul class="rules">
+      <li><span class="dot" data-art="you"></span><span><b>This is you.</b> Move one square at a time. Change how you look under Look.</span></li>
+      <li><span class="dot" data-art="otto"></span><span><b>This is Otto.</b> He moves after you, every time, and always takes his best escape.</span></li>
+      <li><span class="dot f" data-art="fence"></span><span><b>Walls</b> run between some squares. Neither of you can step through them.</span></li>
+      <li><span class="dot s"></span><span><b>Step onto Otto</b> to catch him. Restart whenever you like, but the clock keeps running.</span></li>
+    </ul>
+    <button class="cta" id="help-close">Start</button>
+  </div>
+</div>
+
+<div class="scrim" id="dlg-win" hidden>
+  <div class="dialog" role="dialog" aria-labelledby="win-title">
+    <span class="label" id="win-title">Caught</span>
+    <div class="row" style="align-items:flex-end; justify-content:space-between">
+      <div><div class="result-big" id="win-moves">0</div><p id="win-sub">moves</p></div>
+      <div class="stars" id="win-stars"></div>
+    </div>
+    <p id="win-note"></p>
+    <div class="share-text" id="share-text"></div>
+    <div class="row">
+      <button class="cta" id="btn-share">Copy result</button>
+      <button class="ghost" id="btn-replay">Perfect route</button>
+    </div>
+    <p id="next-wrap">Next board in <span class="countdown" id="countdown"></span></p>
+    <button class="u" id="win-close" style="align-self:flex-start">Close</button>
+  </div>
+</div>
+
+<div class="scrim" id="dlg-stats" hidden>
+  <div class="dialog" role="dialog" aria-labelledby="stats-title">
+    <span class="label">Stats</span>
+    <h3 id="stats-title">Your record.</h3>
+    <div class="stats">
+      <div><b id="st-played">0</b><span class="label">Played</span></div>
+      <div><b id="st-par">0</b><span class="label">Perfect</span></div>
+      <div><b id="st-streak">0</b><span class="label">Streak</span></div>
+      <div><b id="st-best">0</b><span class="label">Best</span></div>
+    </div>
+    <button class="u" id="stats-close" style="align-self:flex-start">Close</button>
+  </div>
+</div>
+
+<div class="scrim" id="dlg-unl" hidden>
+  <div class="dialog" role="dialog" aria-labelledby="unl-title">
+    <span class="label">Unlimited</span>
+    <h3 id="unl-title">More Otto, whenever you want.</h3>
+    <ul class="perks">
+      <li>New boards without limit</li>
+      <li>Choose easy, medium, hard or expert</li>
+      <li>Every past daily board</li>
+      <li>No ads</li>
+    </ul>
+    <div class="plans">
+      <div class="plan"><span>Monthly</span><b>$2.99</b><span>per month</span></div>
+      <div class="plan"><span>Yearly</span><b>$19.99</b><span>save 44%</span></div>
+    </div>
+    <p>Subscriptions open soon. Until then you get one free practice board a day.</p>
+    <div class="row">
+      <button class="cta" id="btn-practice">Play a practice board</button>
+      <button class="ghost" id="unl-close">Not now</button>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="dlg-look" hidden>
+  <div class="dialog" role="dialog" aria-labelledby="look-title">
+    <span class="label">Look</span>
+    <div class="look-top">
+      <div class="look-preview" id="look-preview"></div>
+      <div><h3 id="look-title">This is you.</h3><p>Otto keeps his jeans and white T-shirt.</p></div>
+    </div>
+    <div class="look-rows" id="look-rows"></div>
+    <div class="row">
+      <button class="cta" id="look-save">Save</button>
+      <button class="ghost" id="look-random">Shuffle</button>
+      <button class="ghost" id="look-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="engine.js"></script>
+<script src="app.js"></script>
