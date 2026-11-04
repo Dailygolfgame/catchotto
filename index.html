@@ -148,6 +148,9 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
 .notify-row input:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
 .notify-msg { min-height: 1.4em; font-size: 15px; }
 
+#unl-public, #unl-owner { display: flex; flex-direction: column; gap: 18px; }
+.levels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
 /* Look editor */
 .look-top { display: flex; gap: 18px; align-items: center; }
 .look-preview { width: 92px; height: 92px; flex: none; background: var(--tile); display: grid; place-items: center; border-radius: 2px; }
@@ -311,6 +314,7 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
     <div class="row">
       <button class="cta" id="btn-share">Copy result</button>
       <button class="ghost" id="btn-replay">Perfect route</button>
+      <button class="cta" id="btn-next" hidden>New board</button>
     </div>
     <p id="next-wrap">Next board in <span class="countdown" id="countdown"></span></p>
     <button class="u" id="win-close" style="align-self:flex-start">Close</button>
@@ -333,6 +337,7 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
 
 <div class="scrim" id="dlg-unl" hidden>
   <div class="dialog" role="dialog" aria-labelledby="unl-title">
+    <div id="unl-public">
     <span class="label">Unlimited · Coming soon</span>
     <h3 id="unl-title">More Otto is on the way.</h3>
     <p>We are building Catch Otto Unlimited. It is not available yet.</p>
@@ -358,6 +363,19 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
     <div class="row">
       <button class="ghost" id="btn-practice">Play a practice board</button>
       <button class="ghost" id="unl-close">Close</button>
+    </div>
+    </div>
+    <div id="unl-owner" hidden>
+      <span class="label">Unlimited · Owner</span>
+      <h3>Pick a level.</h3>
+      <p>A brand new board every time. These do not count in your stats.</p>
+      <div class="levels">
+        <button class="ghost" data-level="easy">Easy</button>
+        <button class="ghost" data-level="medium">Medium</button>
+        <button class="ghost" data-level="hard">Hard</button>
+        <button class="ghost" data-level="expert">Expert</button>
+      </div>
+      <button class="u" id="unl-close-2" style="align-self:flex-start">Close</button>
     </div>
   </div>
 </div>

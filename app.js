@@ -271,6 +271,7 @@
       : `Perfect is ${par}. Otto can be caught ${m - par} ${m - par === 1 ? 'move' : 'moves'} faster.`;
     $('share-text').textContent = shareText();
     $('next-wrap').hidden = mode !== 'daily';
+    $('btn-next').hidden = !(mode === 'practice' && isOwner());
     open('dlg-win');
   }
 
@@ -375,13 +376,50 @@
     const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
     toast('Text selected, copy it to share');
   }
+  // ---------- owner unlock ----------
+  // Opening catchotto.com/#unlock-<code> once unlocks unlimited boards in that
+  // browser. Only the SHA-256 of the code is stored here. #lock undoes it.
+  const OWNER_HASH = 'e5d7a3be04586bc2dcdca33ede522f4439ea0f5e97dcf13a2529dfc08c69d45f';
+  const isOwner = () => !!store.owner;
+  async function sha256(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  async function checkUnlock() {
+    const h = location.hash;
+    if (h === '#lock') { delete store.owner; save(); toast('Unlimited locked'); }
+    else if (h.startsWith('#unlock-')) {
+      try {
+        if ((await sha256(h.slice(8))) === OWNER_HASH) { store.owner = true; save(); toast('Unlimited unlocked'); }
+      } catch (e) { /* crypto unavailable */ }
+    } else return;
+    try { history.replaceState(null, '', location.pathname); } catch (e) { location.hash = ''; }
+  }
+  checkUnlock();
+  window.addEventListener('hashchange', checkUnlock);
+
+  const OWNER_LEVELS = { easy: 1, medium: 3, hard: 5, expert: 6 };
+  function playLevel(name) {
+    close('dlg-unl'); close('dlg-win');
+    start('practice', C.generate((Math.random() * 2 ** 32) >>> 0, C.LEVELS[OWNER_LEVELS[name]]));
+    $('daynum').textContent = `Unlimited · ${name.toUpperCase()}`;
+    lastLevel = name;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  let lastLevel = 'hard';
+  document.querySelectorAll('[data-level]').forEach((b) => b.addEventListener('click', () => playLevel(b.dataset.level)));
+  $('btn-next').addEventListener('click', () => playLevel(lastLevel));
+
   $('btn-unlimited').addEventListener('click', () => {
+    const owner = isOwner();
+    $('unl-public').hidden = owner; $('unl-owner').hidden = !owner;
     const used = store.practiceDate === TODAY;
     $('btn-practice').textContent = used ? 'Free board used today' : 'Play a practice board';
     $('btn-practice').disabled = used;
     open('dlg-unl');
   });
   $('unl-close').addEventListener('click', () => close('dlg-unl'));
+  $('unl-close-2').addEventListener('click', () => close('dlg-unl'));
   // waitlist: sends the email to Formspree and confirms in place
   $('notify-form').addEventListener('submit', (e) => {
     e.preventDefault();
