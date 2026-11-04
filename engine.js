@@ -131,18 +131,45 @@
     return Infinity;
   }
 
-  const LEVELS = {
+  // Boards up to 4 Nov 2026 (kept so those days never change).
+  const LEVELS_V1 = {
     1: { min: 10, max: 12, walls: [16, 22], name: 'Easy' },
     2: { min: 11, max: 13, walls: [16, 22], name: 'Medium' },
     3: { min: 12, max: 14, walls: [16, 24], name: 'Medium' },
     4: { min: 13, max: 15, walls: [16, 24], name: 'Hard' },
     5: { min: 13, max: 16, walls: [14, 24], name: 'Hard' },
-    // Weekends: open boards, and the first moves are a trap. Each of the first
-    // `forced` moves has exactly one right answer; anything else lets Otto run
-    // forever or costs at least `penalty` extra moves.
     6: { min: 14, max: 20, walls: [8, 13], forced: 3, penalty: 4, name: 'Expert' },
     0: { min: 15, max: 22, walls: [7, 12], forced: 3, penalty: 4, name: 'Expert' },
   };
+  const V2_FROM = '2026-11-05';
+  // From 5 Nov 2026: every board also needs a minimum number of trap moves,
+  // moves where only one choice keeps Perfect and the rest let Otto get away.
+  const LEVELS = {
+    1: { min: 11, max: 15, walls: [14, 22], traps: 3, name: 'Easy' },
+    2: { min: 12, max: 16, walls: [12, 22], traps: 4, name: 'Medium' },
+    3: { min: 12, max: 17, walls: [12, 22], traps: 5, name: 'Medium' },
+    4: { min: 13, max: 18, walls: [10, 20], traps: 5, name: 'Hard' },
+    5: { min: 14, max: 20, walls: [10, 20], traps: 6, name: 'Hard' },
+    // Weekends: open boards, the first three moves are forced, and many more traps follow.
+    6: { min: 14, max: 22, walls: [8, 13], forced: 3, penalty: 4, traps: 5, name: 'Expert' },
+    0: { min: 15, max: 24, walls: [7, 12], forced: 3, penalty: 4, traps: 5, name: 'Expert' },
+  };
+
+  function trapCount(block, player, creature, val, path, penalty) {
+    let pl = player, ot = creature, n = 0;
+    for (const dir of path) {
+      const need = val[pl * S + ot]; let good = 0, soft = false;
+      for (let d = 1; d <= 4; d++) {
+        const s = step(block, pl, ot, d, val); if (!s) continue;
+        if (s.caught) { good++; continue; }
+        const after = val[s.player * S + s.creature];
+        if (after + 1 === need) good++; else if (after < INF && after + 1 < need + penalty) soft = true;
+      }
+      if (good === 1 && !soft) n++;
+      const s = step(block, pl, ot, dir, val); if (s.caught) break; pl = s.player; ot = s.creature;
+    }
+    return n;
+  }
 
   // True when each of the first `n` moves along the perfect line is the only good one.
   function forcedStart(block, player, creature, val, n, penalty) {
@@ -195,12 +222,13 @@
         const p = Math.floor(k / S), c = k % S; const [pr, pc] = rc(p), [cr, cc] = rc(c);
         if (Math.abs(pr - cr) + Math.abs(pc - cc) >= 4) cands.push(k);
       }
-      for (let t = 0; t < (level.forced ? 400 : 30) && cands.length; t++) {
+      for (let t = 0; t < (level.forced || level.traps ? 400 : 30) && cands.length; t++) {
         const k = cands.splice(Math.floor(rnd() * cands.length), 1)[0];
         const player = Math.floor(k / S), creature = k % S, par = val[k];
         if (naiveMoves(block, player, creature, par + 4, val) <= par + 4) continue;
         if (level.forced && !forcedStart(block, player, creature, val, level.forced, level.penalty)) continue;
         const sol = solve(block, player, creature, val);
+        if (level.traps && trapCount(block, player, creature, val, sol.path, 3) < level.traps) continue;
         return { block, walls: new Array(S).fill(false), player, creature, par, path: sol.path, val };
       }
     }
@@ -209,9 +237,9 @@
 
   const EPOCH = '2026-11-03';
   function dayNumber(dateStr) { return Math.round((Date.parse(dateStr + 'T12:00:00Z') - Date.parse(EPOCH + 'T12:00:00Z')) / 864e5) + 1; }
-  function dailyLevel(dateStr) { return LEVELS[new Date(dateStr + 'T12:00:00Z').getUTCDay()]; }
+  function dailyLevel(dateStr) { return (dateStr >= V2_FROM ? LEVELS : LEVELS_V1)[new Date(dateStr + 'T12:00:00Z').getUTCDay()]; }
   function daily(dateStr) { return generate(hashString('otto-maze:' + dateStr), dailyLevel(dateStr)); }
 
-  const api = { forcedStart, N, DIRS, INF, rng, hashString, target, neighbours, analyse, valueAt, flee, step, solve, naiveMoves, generate, daily, dailyLevel, dayNumber, LEVELS, EPOCH };
+  const api = { trapCount, forcedStart, N, DIRS, INF, rng, hashString, target, neighbours, analyse, valueAt, flee, step, solve, naiveMoves, generate, daily, dailyLevel, dayNumber, LEVELS, EPOCH };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Cornered = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -71,8 +71,8 @@ const pages = [
 <p>Make a careless step and Otto can run circles around the walls forever. The game never stops you. If he keeps slipping away, that is your hint to restart and think again.</p>
 <h2>The week</h2>
 <ul>
-<li><strong>Monday</strong> is the easiest board, around 10 to 12 moves.</li>
-<li><strong>Tuesday to Friday</strong> get longer and harder.</li>
+<li><strong>Monday</strong> is the easiest board, around 11 to 15 moves with a few tricky moments.</li>
+<li><strong>Tuesday to Friday</strong> get longer and harder. Every board has several trap moves, where only one choice keeps the perfect catch alive.</li>
 <li><strong>Saturday and Sunday</strong> are expert boards. They have few walls, and the first three moves are a trap: each has one right answer. Get one wrong and Otto slips away.</li>
 </ul>
 <h2>Tips</h2>
