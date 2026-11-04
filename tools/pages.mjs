@@ -31,8 +31,8 @@ function page({ path, title, description, label, h1, body, noindex, ads = true, 
 <meta name="google-adsense-account" content="ca-pub-4913143800554205">
 <link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap">
+<link rel="preload" href="/assets/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
 <link rel="stylesheet" href="/assets/page.css">
 ${jsonld}${ads ? ADS + '\n' : ''}${GOAT}
 </head>
@@ -129,7 +129,7 @@ const pages = [
   { path: '/privacy/', title: 'Privacy Policy – Catch Otto', label: 'Privacy',
     description: 'How Catch Otto handles your data: what is stored on your device, the contact form, analytics and advertising.',
     h1: 'Privacy policy.', body: `
-<p class="meta">Last updated: 3 November 2026</p>
+<p class="meta">Last updated: 4 November 2026</p>
 <p>This policy explains what information Catch Otto (catchotto.com) collects when you visit, how it is used, and what choices you have. We collect very little.</p>
 <h2>What we do not collect</h2>
 <p>Catch Otto has no accounts or sign-in. We do not ask for your name, email or location to play.</p>
@@ -137,8 +137,10 @@ const pages = [
 <p>To remember your progress, the game stores a small amount of information in your browser’s local storage: your moves on today’s board, your statistics (boards played, perfect catches and streaks) and the look you chose for your character. This data stays on your device. We do not receive it. You can remove it at any time by clearing your site data in your browser settings.</p>
 <h2>Contact form</h2>
 <p>If you send us a message through the contact page, we receive the name, email address and message you enter. We use it only to read and reply to your message. The form is processed by Formspree, which delivers the message to us by email.</p>
+<h2>Unlimited waitlist</h2>
+<p>If you join the waitlist for Catch Otto Unlimited, we receive your email address. We use it only to tell you when Unlimited opens, and every email will include a way to unsubscribe. You can also ask us to remove your address at any time through the contact page. The waitlist form is processed by Formspree.</p>
 <h2>Hosting and analytics</h2>
-<p>The site is hosted on GitHub Pages, which may process technical information such as your IP address and browser type to deliver the site and keep it secure. We count visits with GoatCounter, a privacy-friendly analytics service that does not use cookies and does not collect personal data. It tells us which pages are visited and roughly where visitors come from, so we know what to improve.</p>
+<p>The site is hosted on GitHub Pages, which may process technical information such as your IP address and browser type to deliver the site and keep it secure. Fonts and all other files are served from our own site, not from third-party font services. We count visits with GoatCounter, a privacy-friendly analytics service that does not use cookies and does not collect personal data. It tells us which pages are visited and roughly where visitors come from, so we know what to improve.</p>
 <h2>Advertising and cookies</h2>
 <p>We use Google AdSense to show advertising, which helps pay for running the site. Google and its partners may use cookies and similar technologies to show ads, including ads based on your previous visits to this or other websites. Google’s use of advertising cookies enables it and its partners to serve ads to you based on your visit to our site and/or other sites on the internet.</p>
 <p>You can manage or opt out of personalised advertising through <a href="https://adssettings.google.com/">Google Ads Settings</a>. You can also opt out of some third-party vendors’ use of cookies for personalised advertising at <a href="https://www.aboutads.info/">aboutads.info</a>. You can find out how Google uses information from sites that use its services at <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
