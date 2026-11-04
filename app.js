@@ -246,17 +246,25 @@
 
   function starsFor(m, par) { return m <= par ? 3 : m <= par + 3 ? 2 : 1; }
 
+  // Hints are opened on /hint/, which records them per day under its own key.
+  function hintsUsed() {
+    if (mode !== 'daily') return 0;
+    try { return (JSON.parse(localStorage.getItem('otto:hints')) || {})[TODAY] || 0; } catch (e) { return 0; }
+  }
+  const hintLabel = (h) => (h === 0 ? 'no hints' : h === 1 ? '1 hint' : `${h} hints`);
+
   function shareText() {
     const s = starsFor(moves.length, puzzle.par);
     const head = mode === 'daily' ? `Otto #${C.dayNumber(TODAY)}` : 'Otto practice';
     const t = tries === 1 ? '1st try' : `${tries} tries`;
-    return `${head} ⚪\n⏱ ${fmt(now())} · ${t}\n${moves.length} moves · perfect ${puzzle.par} ${'★'.repeat(s)}${'☆'.repeat(3 - s)}\n${SITE_URL}`;
+    const hints = mode === 'daily' ? ` · 💡 ${hintLabel(hintsUsed())}` : '';
+    return `${head} ⚪\n⏱ ${fmt(now())} · ${t}${hints}\n${moves.length} moves · perfect ${puzzle.par} ${'★'.repeat(s)}${'☆'.repeat(3 - s)}\n${SITE_URL}`;
   }
 
   function showWin() {
     const m = moves.length, par = puzzle.par, s = starsFor(m, par);
     $('win-moves').textContent = fmt(now());
-    $('win-sub').textContent = `${m} moves · ${tries === 1 ? 'first try' : tries + ' tries'}`;
+    $('win-sub').textContent = `${m} moves · ${tries === 1 ? 'first try' : tries + ' tries'}${mode === 'daily' ? ' · ' + hintLabel(hintsUsed()) : ''}`;
     $('win-stars').textContent = '★'.repeat(s) + '☆'.repeat(3 - s);
     $('win-title').textContent = m <= par ? 'Perfect catch' : 'Caught';
     $('win-note').textContent = m <= par ? 'Perfect. You caught Otto in the fewest moves possible.'

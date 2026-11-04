@@ -54,9 +54,22 @@
   document.getElementById('hint-2').textContent = p.path.slice(0, 3).map(function (k) { return OttoBoard.ARROWS[k]; }).join(' ');
   document.getElementById('hint-3-route').textContent = p.path.map(function (k) { return OttoBoard.ARROWS[k]; }).join(' ');
   var el = document.getElementById('viewer'); el.innerHTML = OttoBoard.svg(p, '/assets/otto.svg');
+  // Remember how many hints were opened today, so the game can show it in the result.
+  var KEY = 'otto:hints', used = {};
+  try { used = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+  function reveal(k) { document.getElementById('hint-' + k).hidden = false; document.querySelector('.reveal[data-k="' + k + '"]').hidden = true; }
+  for (var k = 1; k <= (used[ds] || 0); k++) reveal(k);
   document.querySelectorAll('.reveal').forEach(function (b) {
-    b.addEventListener('click', function () { document.getElementById('hint-' + b.dataset.k).hidden = false; b.hidden = true; });
+    b.addEventListener('click', function () {
+      reveal(b.dataset.k);
+      var n = document.querySelectorAll('.reveal[hidden]').length;
+      used[ds] = Math.max(used[ds] || 0, n);
+      try { localStorage.setItem(KEY, JSON.stringify(used)); } catch (e) {}
+    });
   });
+  var note = document.createElement('p'); note.className = 'meta';
+  note.textContent = 'Hints you open are counted in today’s result.';
+  document.getElementById('hint-intro').after(note);
   var btn = document.getElementById('play-route');
   btn.addEventListener('click', function () { btn.disabled = true; OttoBoard.play(el, p, Cornered, function () { btn.disabled = false; btn.textContent = 'Watch again'; }); });
 })();
