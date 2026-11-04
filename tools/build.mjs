@@ -9,7 +9,6 @@ const headPart = src.slice(0, split)
 const bodyPart = src.slice(split);
 const extra = `<meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#efeeea">
-<meta name="google-adsense-account" content="ca-pub-4913143800554205">
 <link rel="canonical" href="https://catchotto.com/">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -26,7 +25,6 @@ const extra = `<meta name="robots" content="index, follow, max-image-preview:lar
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://catchotto.com/og-image.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Catch Otto","url":"https://catchotto.com/","description":"A free daily logic puzzle. Catch Otto, a clever little guy, on an 8×8 board in as few moves as you can.","genre":"Puzzle","gamePlatform":"Web browser","applicationCategory":"Game","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4913143800554205" crossorigin="anonymous"></script>
 <script data-goatcounter="https://catchotto.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 `;
 const html = `<!doctype html>

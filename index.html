@@ -140,13 +140,6 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
 .toast { position: fixed; left: 50%; bottom: calc(28px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 2px; font-size: 14px; z-index: 30; white-space: nowrap; }
 .countdown { color: var(--ink); font-variant-numeric: tabular-nums; }
 
-/* Waitlist form */
-.notify { display: flex; flex-direction: column; gap: 8px; }
-.notify-row { display: flex; gap: 8px; }
-.notify-row input { flex: 1; min-width: 0; font: inherit; color: var(--ink); background: var(--tile); border: 1px solid var(--line); border-radius: 2px; padding: 12px 14px; }
-.notify-row input:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
-.notify-msg { min-height: 1.4em; font-size: 15px; }
-
 #unl-public, #unl-owner { display: flex; flex-direction: column; gap: 18px; }
 .levels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
@@ -190,7 +183,6 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
 
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#efeeea">
-<meta name="google-adsense-account" content="ca-pub-4913143800554205">
 <link rel="canonical" href="https://catchotto.com/">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -207,7 +199,6 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://catchotto.com/og-image.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Catch Otto","url":"https://catchotto.com/","description":"A free daily logic puzzle. Catch Otto, a clever little guy, on an 8×8 board in as few moves as you can.","genre":"Puzzle","gamePlatform":"Web browser","applicationCategory":"Game","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4913143800554205" crossorigin="anonymous"></script>
 <script data-goatcounter="https://catchotto.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
@@ -339,25 +330,13 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
     <div id="unl-public">
     <span class="label">Unlimited · Coming soon</span>
     <h3 id="unl-title">More Otto is on the way.</h3>
-    <p>We are building Catch Otto Unlimited. It is not available yet.</p>
+    <p>We are working on Catch Otto Unlimited. It is not available yet.</p>
     <ul class="perks">
       <li>New boards without limit</li>
       <li>Choose easy, medium, hard or expert</li>
       <li>Every past daily board</li>
       <li>No ads</li>
     </ul>
-    <form class="notify" id="notify-form" action="https://formspree.io/f/mvkkdawj" method="POST">
-      <input type="hidden" name="_subject" value="Catch Otto Unlimited: waitlist">
-      <input type="hidden" name="site" value="catchotto.com">
-      <input type="hidden" name="message" value="Please tell me when Catch Otto Unlimited opens.">
-      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" hidden>
-      <label class="label" for="notify-email">Get an email when it opens</label>
-      <div class="notify-row">
-        <input id="notify-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
-        <button class="cta" type="submit">Notify me</button>
-      </div>
-      <p class="notify-msg" id="notify-msg" role="status"></p>
-    </form>
     <p>Until then, you get one free practice board a day.</p>
     <div class="row">
       <button class="ghost" id="btn-practice">Play a practice board</button>
