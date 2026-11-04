@@ -109,6 +109,9 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
 .site-foot a { color: var(--ink-dim); text-decoration: none; }
 .site-foot a:hover { color: var(--ink); }
 
+.ad-slot { padding-top: 12px; border-top: 1px solid var(--line); min-height: 120px; }
+.ad-label { display: block; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 8px; }
+
 /* Dialogs */
 .scrim { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: center; z-index: 20;
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
@@ -186,6 +189,7 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Catch Otto","url":"https://catchotto.com/","description":"A free daily logic puzzle. Catch Otto, a clever little guy, on an 8×8 board in as few moves as you can.","genre":"Puzzle","gamePlatform":"Web browser","applicationCategory":"Game","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4913143800554205" crossorigin="anonymous"></script>
 <script data-goatcounter="https://catchotto.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script src="/assets/ads.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -250,6 +254,8 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
       <p><strong>Why are weekends so hard?</strong> Saturday and Sunday boards have few walls, and the first three moves are a trap. Each has one right answer. Get one wrong and Otto slips away.</p>
     </section>
   </article>
+
+  <div class="ad-slot" data-ad hidden></div>
 
   <footer class="site-foot">
     <nav aria-label="Site pages">

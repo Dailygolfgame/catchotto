@@ -50,3 +50,7 @@ footer nav a { font-size: 14px; }
 .archive a { text-decoration: none; font-weight: 500; }
 .archive span { color: var(--ink-dim); font-variant-numeric: tabular-nums; }
 .pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 28px; }
+
+/* Ad placement (hidden until an ad unit is configured in assets/ads.js) */
+.ad-slot { margin: 36px 0; padding-top: 12px; border-top: 1px solid var(--line); min-height: 120px; }
+.ad-label { display: block; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 8px; }

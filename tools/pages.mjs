@@ -34,7 +34,7 @@ function page({ path, title, description, label, h1, body, noindex, ads = true, 
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/assets/page.css">
-${jsonld}${ads ? ADS + '\n' : ''}${GOAT}
+${jsonld}${ads ? ADS + '\n<script src="/assets/ads.js" defer></script>\n' : ''}${GOAT}
 </head>
 <body>
 <div class="wrap">
@@ -43,7 +43,7 @@ ${jsonld}${ads ? ADS + '\n' : ''}${GOAT}
 <span class="label">${label}</span>
 <h1>${h1}</h1>
 ${body}
-</main>
+${ads ? '<div class="ad-slot" data-ad hidden></div>\n' : ''}</main>
 <footer><nav aria-label="Site pages">${foot}</nav><span>Catch Otto © 2026. A small daily logic puzzle.</span></footer>
 </div>
 ${scripts}</body>
