@@ -141,6 +141,8 @@ const pages = [
 <p>The site is hosted on GitHub Pages, which may process technical information such as your IP address and browser type to deliver the site and keep it secure. Fonts and all other files are served from our own site, not from third-party font services. We count visits with GoatCounter, a privacy-friendly analytics service that does not use cookies and does not collect personal data. It tells us which pages are visited and roughly where visitors come from, so we know what to improve.</p>
 <h2>Advertising and cookies</h2>
 <p>Catch Otto does not show advertising and does not use cookies. If that changes, we will update this policy before it happens.</p>
+<h2>Children</h2>
+<p>Catch Otto is a general audience site and is not directed at children under 13. We do not knowingly collect personal information from children.</p>
 <h2>Your rights</h2>
 <p>Depending on where you live, you may have the right to ask what personal data we hold about you, to have it corrected or deleted, or to object to its use. Because we collect very little, this mostly applies to messages sent through the contact form. Use the <a href="/contact/">contact page</a> to make a request.</p>
 <h2>Changes</h2>
