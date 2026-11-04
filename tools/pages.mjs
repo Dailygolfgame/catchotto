@@ -98,7 +98,7 @@ const pages = [
     description: 'Get in touch with Catch Otto. Report a bug, suggest an idea or tell us about a board you loved.',
     h1: 'Say hi.', body: `
 <p class="lead">Found a bug, have an idea or a board that drove you crazy? Send us a message.</p>
-<form id="contact-form" method="POST" action="https://formspree.io/f/mnppvezd">
+<form id="contact-form" method="POST" action="https://formspree.io/f/mvkkdawj">
 <input type="hidden" name="_subject" value="Catch Otto: new message">
 <input type="hidden" name="site" value="catchotto.com">
 <p style="display:none"><label>Don't fill this out: <input name="_gotcha" tabindex="-1" autocomplete="off"></label></p>
