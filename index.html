@@ -163,6 +163,27 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
 
 @media (prefers-reduced-motion: reduce) { .token { transition: none; } .token svg, .nudge { animation: none !important; } }
 @media (max-width: 380px) { .pad { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(2, 44px); } .score .value { font-size: 32px; } nav { gap: 12px; } }
+/* Desktop: big board on the left, score and controls beside it, reading text below in columns */
+@media (min-width: 900px) {
+  body { font-size: 18px; }
+  .wrap { max-width: 1180px; display: grid; grid-template-columns: minmax(0, auto) minmax(300px, 1fr); column-gap: 64px; row-gap: 24px; align-items: start; }
+  header, article, .site-foot { grid-column: 1 / -1; }
+  header { padding-top: 36px; padding-bottom: 8px; }
+  .logo-otto { width: 46px; height: 46px; }
+  .mark { font-size: 17px; }
+  nav .link { font-size: 17px; }
+  .board-frame { grid-column: 1; grid-row: 2 / span 5; width: min(640px, calc(100vh - 150px)); min-width: 460px; }
+  .score, .controls, .hint, .foot { grid-column: 2; }
+  .score { padding-top: 6px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .score .value { font-size: 52px; }
+  .controls { justify-content: flex-start; gap: 32px; align-items: flex-end; }
+  .hint { font-size: 15px; }
+  .foot { border-bottom: 0; }
+  article { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; padding-top: 56px; border-top: 1px solid var(--line); margin-top: 24px; }
+  article section { padding-bottom: 0; }
+  article h2 { font-size: 34px; }
+  .dialog { max-width: 480px; }
+}
 </style>
 
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -221,7 +242,7 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
       <button class="right" data-dir="2" aria-label="Right"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
   </div>
-  <p class="hint">Swipe, use the arrows, or tap a square next to you. There is no undo. Restarting is free, but the clock keeps running. Stuck? <a class="u" href="/hint/">Get a hint</a>.</p>
+  <p class="hint">Use the arrow keys or WASD, swipe, or tap a square next to you. Press R to restart. There is no undo. Restarting is free, but the clock keeps running. Stuck? <a class="u" href="/hint/">Get a hint</a>.</p>
 
   <div class="foot">
     <button class="u" id="btn-unlimited">More boards, coming soon</button>
