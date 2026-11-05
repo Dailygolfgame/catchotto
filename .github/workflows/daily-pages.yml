@@ -30,6 +30,7 @@ jobs:
 
       - name: Build pages
         run: |
+          node tools/precompute.mjs
           node tools/build.mjs
           node tools/pages.mjs
 

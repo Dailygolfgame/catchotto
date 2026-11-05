@@ -235,11 +235,44 @@
     throw new Error('generation failed');
   }
 
+  // Precomputed boards (data/boards.js): from 6 Nov 2026 every daily board is
+  // picked offline by tools/precompute.mjs so only hard ones are used.
+  function boardData() {
+    if (typeof root !== 'undefined' && root.OTTO_BOARDS) return root.OTTO_BOARDS;
+    if (typeof module !== 'undefined' && module.exports && typeof require === 'function') {
+      try { return require('./data/boards.js'); } catch (e) { return null; }
+    }
+    return null;
+  }
+  // 64 hex digits of wall masks (bits for up, right, down, left) + 2 hex for you + 2 hex for Otto.
+  function encode(p) {
+    let s = '';
+    for (let i = 0; i < S; i++) s += (p.block[i] >> 1).toString(16);
+    return s + p.player.toString(16).padStart(2, '0') + p.creature.toString(16).padStart(2, '0');
+  }
+  function decode(str) {
+    const block = new Uint8Array(S);
+    for (let i = 0; i < S; i++) block[i] = parseInt(str[i], 16) << 1;
+    const player = parseInt(str.slice(64, 66), 16), creature = parseInt(str.slice(66, 68), 16);
+    const val = analyse(block), sol = solve(block, player, creature, val);
+    return { block, walls: new Array(S).fill(false), player, creature, par: sol.par, path: sol.path, val };
+  }
+
   const EPOCH = '2026-11-03';
   function dayNumber(dateStr) { return Math.round((Date.parse(dateStr + 'T12:00:00Z') - Date.parse(EPOCH + 'T12:00:00Z')) / 864e5) + 1; }
   function dailyLevel(dateStr) { return (dateStr >= V2_FROM ? LEVELS : LEVELS_V1)[new Date(dateStr + 'T12:00:00Z').getUTCDay()]; }
-  function daily(dateStr) { return generate(hashString('otto-maze:' + dateStr), dailyLevel(dateStr)); }
+  function daily(dateStr) {
+    const data = boardData();
+    if (data && data.days && data.days[dateStr]) return decode(data.days[dateStr]);
+    return generate(hashString('otto-maze:' + dateStr), dailyLevel(dateStr));
+  }
+  // A ready-made board for practice / unlimited play at a given level name.
+  function pooled(levelName, rnd) {
+    const data = boardData(), list = data && data.pool && data.pool[levelName];
+    if (!list || !list.length) return null;
+    return decode(list[Math.floor((rnd || Math.random)() * list.length)]);
+  }
 
-  const api = { trapCount, forcedStart, N, DIRS, INF, rng, hashString, target, neighbours, analyse, valueAt, flee, step, solve, naiveMoves, generate, daily, dailyLevel, dayNumber, LEVELS, EPOCH };
+  const api = { encode, decode, pooled, boardData, trapCount, forcedStart, N, DIRS, INF, rng, hashString, target, neighbours, analyse, valueAt, flee, step, solve, naiveMoves, generate, daily, dailyLevel, dayNumber, LEVELS, EPOCH };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Cornered = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -403,7 +403,8 @@
   const OWNER_LEVELS = { easy: 1, medium: 3, hard: 5, expert: 6 };
   function playLevel(name) {
     close('dlg-unl'); close('dlg-win');
-    start('practice', C.generate((Math.random() * 2 ** 32) >>> 0, C.LEVELS[OWNER_LEVELS[name]]));
+    const label = name[0].toUpperCase() + name.slice(1);
+    start('practice', C.pooled(label) || C.generate((Math.random() * 2 ** 32) >>> 0, C.LEVELS[OWNER_LEVELS[name]]));
     $('daynum').textContent = `Unlimited · ${name.toUpperCase()}`;
     lastLevel = name;
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -425,9 +426,8 @@
   $('btn-practice').addEventListener('click', () => {
     store.practiceDate = TODAY; save();
     close('dlg-unl');
-    const levels = [3, 4, 5, 6];
-    const lvl = C.LEVELS[levels[Math.floor(Math.random() * levels.length)]];
-    start('practice', C.generate((Math.random() * 2 ** 32) >>> 0, lvl));
+    const names = ['Medium', 'Hard', 'Expert'], name = names[Math.floor(Math.random() * names.length)];
+    start('practice', C.pooled(name) || C.generate((Math.random() * 2 ** 32) >>> 0, C.LEVELS[{ Medium: 3, Hard: 5, Expert: 6 }[name]]));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
   $('btn-daily').addEventListener('click', startDaily);
@@ -500,7 +500,7 @@
   // #expert opens a weekend-style board right away (for testing and sharing)
   function startExpert() {
     const lvl = C.LEVELS[new Date().getDay() === 0 ? 0 : 6];
-    start('practice', C.generate((Math.random() * 2 ** 32) >>> 0, lvl));
+    start('practice', C.pooled('Expert') || C.generate((Math.random() * 2 ** 32) >>> 0, lvl));
     $('daynum').textContent = 'Expert practice';
   }
   window.addEventListener('hashchange', () => { if (location.hash === '#expert') startExpert(); });
