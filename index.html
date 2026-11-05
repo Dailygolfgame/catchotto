@@ -55,6 +55,16 @@ nav { display: flex; align-items: center; gap: 14px; justify-content: flex-end; 
 .score div:last-child { text-align: right; }
 .score .value { font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1; font-variant-numeric: tabular-nums; }
 
+/* This week's boards */
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: -8px; }
+.wday { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0 7px; border: 1px solid var(--line); border-radius: 2px; color: var(--ink); }
+.wday span { font-size: 11px; font-weight: 500; letter-spacing: .14em; color: var(--ink-dim); }
+.wday b { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.wday.today span { color: var(--ink); }
+.wday.on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.wday.on span { color: var(--bg); }
+.wday:disabled { opacity: .35; cursor: default; }
+
 /* Board */
 .board-frame { touch-action: none; border: 2px solid var(--ink); padding: 4px; }
 .board { position: relative; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 3px; aspect-ratio: 1; max-width: 100%; }
@@ -167,8 +177,9 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
   .logo-otto { width: 46px; height: 46px; }
   .mark { font-size: 17px; }
   nav .link { font-size: 17px; }
-  .board-frame { grid-column: 1; grid-row: 2 / span 5; width: min(640px, calc(100vh - 150px)); min-width: 460px; }
-  .score, .controls, .hint, .foot { grid-column: 2; }
+  .week { grid-column: 2; margin-bottom: 0; }
+  .board-frame { grid-column: 1; grid-row: 2 / span 6; width: min(640px, calc(100vh - 150px)); min-width: 460px; }
+  .score, .week, .controls, .hint, .foot { grid-column: 2; }
   .score { padding-top: 6px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
   .score .value { font-size: 52px; }
   .controls { justify-content: flex-start; gap: 32px; align-items: flex-end; }
@@ -218,6 +229,8 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
     <div><span class="label">Perfect</span><span class="value" id="par">0</span></div>
   </div>
 
+  <nav class="week" id="week" aria-label="This week's boards"></nav>
+
   <div class="board-frame" id="frame">
     <div class="board" id="board" role="grid" aria-label="Game board"></div>
   </div>
@@ -225,7 +238,7 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
   <div class="controls">
     <div class="side">
       <button class="u" id="btn-reset">Restart</button>
-      <button class="u" id="btn-daily" hidden>Back to daily</button>
+      <button class="u" id="btn-daily" hidden>Back to today</button>
       <button class="u" id="btn-result" hidden>Result</button>
     </div>
     <div class="pad" aria-label="Move">

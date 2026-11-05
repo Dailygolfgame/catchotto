@@ -22,6 +22,7 @@
 
   // ---------- game state ----------
   let mode = 'daily';
+  let DAY = TODAY;        // date of the day board being played (today or earlier this week)
   let puzzle = null;      // {walls, player, creature, par, path}
   let moves = [];         // directions taken
   let pos = null;         // {player, creature}
@@ -163,7 +164,8 @@
       const t = document.createElement('div'); t.className = 'trail'; place(t, v); trailLayer.appendChild(t);
     }
     $('btn-result').hidden = !(solved && mode === 'daily');
-    $('btn-daily').hidden = mode === 'daily';
+    $('btn-daily').hidden = mode === 'daily' && DAY === TODAY;
+    renderWeek();
   }
 
   function start(newMode, p, saved) {
@@ -177,12 +179,12 @@
     pos = replay(moves);
     solved = pos.caught;
     escaped = isEscaped();
-        $('daynum').textContent = mode === 'daily' ? `${String(C.dayNumber(TODAY)).padStart(3, '0')} / ${dayLabel()}` : 'Practice';
+        $('daynum').textContent = mode === 'daily' ? `${String(C.dayNumber(DAY)).padStart(3, '0')} / ${dayLabel()}` : 'Practice';
     render();
   }
 
   function dayLabel() {
-    return C.dailyLevel(TODAY).name.toUpperCase();
+    return C.dailyLevel(DAY).name.toUpperCase();
   }
 
   // Only stop the game when Otto can never be caught from here.
@@ -201,7 +203,7 @@
 
   function persist() {
     if (mode !== 'daily') return;
-    store.days[TODAY] = { moves, solved, tries, elapsed: now() };
+    store.days[DAY] = { moves, solved, tries, elapsed: now() };
     save();
   }
 
@@ -230,7 +232,7 @@
   }
 
   function onSolved() {
-    if (mode === 'daily') {
+    if (mode === 'daily' && DAY === TODAY) {
       const st = store.stats;
       if (st.last !== TODAY) {
         st.played++;
@@ -249,13 +251,13 @@
   // Hints are opened on /hint/, which records them per day under its own key.
   function hintsUsed() {
     if (mode !== 'daily') return 0;
-    try { return (JSON.parse(localStorage.getItem('otto:hints')) || {})[TODAY] || 0; } catch (e) { return 0; }
+    try { return (JSON.parse(localStorage.getItem('otto:hints')) || {})[DAY] || 0; } catch (e) { return 0; }
   }
   const hintLabel = (h) => (h === 0 ? 'no hints' : h === 1 ? '1 hint' : `${h} hints`);
 
   function shareText() {
     const s = starsFor(moves.length, puzzle.par);
-    const head = mode === 'daily' ? `Otto #${C.dayNumber(TODAY)}` : 'Otto practice';
+    const head = mode === 'daily' ? `Otto #${C.dayNumber(DAY)}${DAY === TODAY ? '' : ' (played later)'}` : 'Otto practice';
     const t = tries === 1 ? '1st try' : `${tries} tries`;
     const hints = mode === 'daily' ? ` · 💡 ${hintLabel(hintsUsed())}` : '';
     return `${head} ⚪\n⏱ ${fmt(now())} · ${t}${hints}\n${moves.length} moves · perfect ${puzzle.par} ${'★'.repeat(s)}${'☆'.repeat(3 - s)}\n${SITE_URL}`;
@@ -270,7 +272,7 @@
     $('win-note').textContent = m <= par ? 'Perfect. You caught Otto in the fewest moves possible.'
       : `Perfect is ${par}. Otto can be caught ${m - par} ${m - par === 1 ? 'move' : 'moves'} faster.`;
     $('share-text').textContent = shareText();
-    $('next-wrap').hidden = mode !== 'daily';
+    $('next-wrap').hidden = !(mode === 'daily' && DAY === TODAY);
     $('btn-next').hidden = !(mode === 'practice' && isOwner());
     open('dlg-win');
   }
@@ -350,7 +352,7 @@
 
   function restart() {
     if (busy) return;
-    if (solved) { if (mode === 'daily') toast('Today\u2019s board is done'); return; }
+    if (solved) { if (mode === 'daily') toast(DAY === TODAY ? 'Today\u2019s board is done' : 'This board is done'); return; }
     if (!moves.length) return;
     tries++; moves = []; escaped = false; pos = replay(moves);
     persist(); render();
@@ -462,7 +464,34 @@
   });
   $('look-cancel').addEventListener('click', () => close('dlg-look'));
 
+  // ---------- this week's boards ----------
+  const WEEK = (() => {
+    const d = new Date(); d.setHours(12, 0, 0, 0);
+    const monday = new Date(d.getTime() - ((d.getDay() + 6) % 7) * 864e5);
+    return Array.from({ length: 7 }, (_, k) => localDate(new Date(monday.getTime() + k * 864e5)));
+  })();
+  const playable = (ds) => WEEK.includes(ds) && ds <= TODAY && ds >= C.EPOCH;
+  function renderWeek() {
+    const wrap = $('week'); if (!wrap) return;
+    wrap.innerHTML = '';
+    WEEK.forEach((ds, k) => {
+      const b = document.createElement('button');
+      const ok = playable(ds), done = !!(store.days[ds] && store.days[ds].solved);
+      b.className = 'wday' + (ds === TODAY ? ' today' : '') + (mode === 'daily' && ds === DAY ? ' on' : '') + (done ? ' done' : '');
+      b.disabled = !ok;
+      b.innerHTML = `<span>${'MTWTFSS'[k]}</span><b>${done ? '✓' : Number(ds.slice(8))}</b>`;
+      b.setAttribute('aria-label', `${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][k]}${ok ? '' : ', locked'}${done ? ', solved' : ''}`);
+      if (ok) b.addEventListener('click', () => { if (!busy) startDay(ds); });
+      wrap.appendChild(b);
+    });
+  }
+  function startDay(ds) {
+    DAY = ds;
+    start('daily', C.daily(ds), store.days[ds]);
+  }
+
   function startDaily() {
+    DAY = TODAY;
     const saved = store.days[TODAY];
     start('daily', C.daily(TODAY), saved);
   }
@@ -476,6 +505,12 @@
   }
   window.addEventListener('hashchange', () => { if (location.hash === '#expert') startExpert(); });
 
-  if (location.hash === '#expert') startExpert(); else startDaily();
+  function dayFromHash() {
+    const m = /^#day-(\d{4}-\d{2}-\d{2})$/.exec(location.hash);
+    return m && playable(m[1]) ? m[1] : null;
+  }
+  window.addEventListener('hashchange', () => { const d = dayFromHash(); if (d) startDay(d); });
+
+  if (location.hash === '#expert') startExpert(); else if (dayFromHash()) startDay(dayFromHash()); else startDaily();
   if (!store.seenHelp) { store.seenHelp = true; save(); open('dlg-help'); }
 })();

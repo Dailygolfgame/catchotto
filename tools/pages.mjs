@@ -177,6 +177,7 @@ for (const b of boards) {
     body: `
 <p class="lead">${longDate(ds)}. ${/^[AEIOU]/.test(level) ? 'An' : 'A'} ${level.toLowerCase()} board. You start on ${B.square(p.player)} and Otto starts on ${B.square(p.creature)}. Columns are A to H, rows are 1 to 8 from the top.</p>
 <div class="facts"><div><span class="label">Perfect</span><b>${p.par}</b></div><div><span class="label">Level</span><b>${level}</b></div><div><span class="label">Caught on</span><b>${B.square(b.caught)}</b></div></div>
+<p class="lead" id="week-play" hidden>This board is still playable this week. <a href="/#day-${ds}">Play it first</a>, then come back for the answer.</p>
 <div id="viewer">${B.svg(p, '/assets/otto.svg')}</div>
 <p><button class="cta" id="play-route" type="button">Watch the perfect route</button></p>
 <h2>The perfect route</h2>
@@ -190,6 +191,16 @@ for (const b of boards) {
 <script>
 (function () {
   var p = Cornered.daily('${ds}'), btn = document.getElementById('play-route'), el = document.getElementById('viewer');
+  // Boards from the visitor's current week can still be played: offer that before the spoiler.
+  (function () {
+    var d = new Date(); d.setHours(12, 0, 0, 0);
+    var mon = new Date(d.getTime() - ((d.getDay() + 6) % 7) * 864e5);
+    var pad = function (x) { return String(x).padStart(2, '0'); };
+    var ld = function (x) { return x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate()); };
+    var solved = false;
+    try { var s = JSON.parse(localStorage.getItem('otto:v1')) || {}; solved = !!(s.days && s.days['${ds}'] && s.days['${ds}'].solved); } catch (e) {}
+    if ('${ds}' >= ld(mon) && !solved) document.getElementById('week-play').hidden = false;
+  })();
   btn.addEventListener('click', function () { btn.disabled = true; OttoBoard.play(el, p, Cornered, function () { btn.disabled = false; btn.textContent = 'Watch again'; }); });
 })();
 </script>
