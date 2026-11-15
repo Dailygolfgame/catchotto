@@ -1,6 +1,7 @@
 /* Shared style for the text pages: same paper, ink and type as the game. */
 :root { --bg: #efeeea; --ink: #1a1a19; --ink-dim: #6f6e69; --line: #d6d4ce; --tile: #f7f6f3; --font: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif; color-scheme: light; }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { background: var(--bg); }
 body { margin: 0; color: var(--ink); font: 17px/1.55 var(--font); -webkit-font-smoothing: antialiased;
   padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
@@ -74,3 +75,13 @@ footer nav a { font-size: 14px; }
 .tf .ctl button { flex: 1 1 90px; height: 46px; border-radius: 2px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 500 16px var(--font); cursor: pointer; }
 .tf .ctl button.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 @media (prefers-reduced-motion: reduce) { #board .pc { transition: none; } }
+.tf-tabs { display: grid; grid-template-columns: repeat(2, 1fr); border: 1px solid var(--ink); border-radius: 2px; }
+.tf-tabs button { height: 44px; border: 0; background: transparent; color: var(--ink); font: 500 16px var(--font); cursor: pointer; }
+.tf-tabs button + button { border-left: 1px solid var(--ink); }
+.tf-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.daily-bar { display: flex; justify-content: space-between; align-items: baseline; }
+.daily-bar .clock { font-size: 28px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.daily-done { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.daily-done b { font-size: 44px; font-weight: 600; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+.daily-done .share { margin: 4px 0 0; font: 15px/1.5 var(--font); white-space: pre; border-left: 2px solid var(--ink); padding-left: 12px; }
+.daily-done .cta { margin-top: 6px; }

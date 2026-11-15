@@ -273,7 +273,7 @@
       : `Perfect is ${par}. Otto can be caught ${m - par} ${m - par === 1 ? 'move' : 'moves'} faster.`;
     $('share-text').textContent = shareText();
     $('next-wrap').hidden = !(mode === 'daily' && DAY === TODAY);
-    $('btn-next').hidden = !(mode === 'practice' && isOwner());
+    $('btn-next').hidden = mode !== 'practice';
     open('dlg-win');
   }
 
@@ -414,22 +414,9 @@
   $('btn-next').addEventListener('click', () => playLevel(lastLevel));
 
   $('btn-unlimited').addEventListener('click', () => {
-    const owner = isOwner();
-    $('unl-public').hidden = owner; $('unl-owner').hidden = !owner;
-    const used = store.practiceDate === TODAY;
-    $('btn-practice').textContent = used ? 'Free board used today' : 'Play a practice board';
-    $('btn-practice').disabled = used;
     open('dlg-unl');
   });
-  $('unl-close').addEventListener('click', () => close('dlg-unl'));
   $('unl-close-2').addEventListener('click', () => close('dlg-unl'));
-  $('btn-practice').addEventListener('click', () => {
-    store.practiceDate = TODAY; save();
-    close('dlg-unl');
-    const names = ['Medium', 'Hard', 'Expert'], name = names[Math.floor(Math.random() * names.length)];
-    start('practice', C.pooled(name) || C.generate((Math.random() * 2 ** 32) >>> 0, C.LEVELS[{ Medium: 3, Hard: 5, Expert: 6 }[name]]));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
   $('btn-daily').addEventListener('click', startDaily);
 
   const LOOK_ROWS = [['skin', 'Skin'], ['hair', 'Hair'], ['hairColor', 'Hair colour'], ['hat', 'Hat'], ['shirt', 'T-shirt'], ['pants', 'Trousers']];

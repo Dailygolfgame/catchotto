@@ -225,7 +225,7 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
   <p class="hint">Use the arrow keys or WASD, swipe, or tap a square next to you. Press R to restart. There is no undo. Restarting is free, but the clock keeps running. Stuck? <a class="u" href="/hint/">Get a hint</a>.</p>
 
   <div class="foot">
-    <button class="u" id="btn-unlimited">More boards, coming soon</button>
+    <button class="u" id="btn-unlimited">Unlimited boards</button>
     <span id="daynum"></span>
   </div>
 
@@ -315,26 +315,10 @@ article ol { margin: 0; padding-left: 22px; display: flex; flex-direction: colum
 
 <div class="scrim" id="dlg-unl" hidden>
   <div class="dialog" role="dialog" aria-labelledby="unl-title">
-    <div id="unl-public">
-    <span class="label">Unlimited · Coming soon</span>
-    <h3 id="unl-title">More Otto is on the way.</h3>
-    <p>We are working on Catch Otto Unlimited. It is not available yet.</p>
-    <ul class="perks">
-      <li>New boards without limit</li>
-      <li>Choose easy, medium, hard or expert</li>
-      <li>Every past daily board</li>
-      <li>No ads</li>
-    </ul>
-    <p>Until then, you get one free practice board a day.</p>
-    <div class="row">
-      <button class="ghost" id="btn-practice">Play a practice board</button>
-      <button class="ghost" id="unl-close">Close</button>
-    </div>
-    </div>
-    <div id="unl-owner" hidden>
-      <span class="label">Unlimited · Owner</span>
-      <h3>Pick a level.</h3>
-      <p>A brand new board every time. These do not count in your stats.</p>
+    <div id="unl-owner">
+      <span class="label">Unlimited</span>
+      <h3 id="unl-title">Pick a level.</h3>
+      <p>A brand new board every time, as many as you like. Unlimited boards do not count in your stats or streak.</p>
       <div class="levels">
         <button class="ghost" data-level="easy">Easy</button>
         <button class="ghost" data-level="medium">Medium</button>
