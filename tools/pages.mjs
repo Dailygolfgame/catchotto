@@ -9,7 +9,7 @@ const GOAT = '<script data-goatcounter="https://catchotto.goatcounter.com/count"
 // AdSense is paused for this site. To turn it on again, set ADS to the AdSense script tag.
 const ADS = '';
 const NAV = [['/how-to-play/', 'How to play'], ['/hint/', 'Hint'], ['/board/', 'Archive']];
-const FOOT = [['/', 'Play today’s board'], ['/how-to-play/', 'How to play'], ['/hint/', 'Today’s hint'], ['/board/', 'Past boards'], ['/about/', 'About'], ['/contact/', 'Contact'], ['/privacy/', 'Privacy policy']];
+const FOOT = [['/', 'Play today’s board'], ['/how-to-play/', 'How to play'], ['/hint/', 'Today’s hint'], ['/board/', 'Past boards'], ['/tight-fit/', 'Tight Fit'], ['/about/', 'About'], ['/contact/', 'Contact'], ['/privacy/', 'Privacy policy']];
 
 function page({ path, title, description, label, h1, body, noindex, ads = true, scripts = '', jsonld = '' }) {
   const nav = NAV.map(([h, t]) => `<a href="${h}"${h === path ? ' aria-current="page"' : ''}>${t}</a>`).join('');
@@ -208,6 +208,33 @@ for (const b of boards) {
 `,
   });
 }
+pages.push({
+  path: '/tight-fit/', label: 'Another puzzle', title: 'Tight Fit – Pack the Pieces Puzzle | Catch Otto',
+  description: 'Tight Fit is a free packing puzzle from Catch Otto. Every piece is the same shape. Fit them all into the dark frame. Six levels, each with exactly one solution.',
+  h1: 'Tight Fit.',
+  body: `
+<p class="lead">Every piece is the same shape. Fit them all into the dark frame. There is only one way.</p>
+<div class="tf">
+  <div class="levels" id="levels" role="group" aria-label="Level"></div>
+  <div class="status"><strong id="st"></strong><span id="cnt"></span></div>
+  <svg id="board" xmlns="http://www.w3.org/2000/svg" aria-label="Puzzle board"></svg>
+  <div class="ctl">
+    <button id="rot" type="button">Rotate</button>
+    <button id="flip" type="button">Flip</button>
+    <button id="reset" type="button">Restart</button>
+    <button id="next" type="button" class="primary" hidden>Next level</button>
+  </div>
+</div>
+<h2>How to play</h2>
+<ul>
+<li><strong>Drag a piece</strong> to move it. Pieces snap to the grid.</li>
+<li><strong>Tap a piece</strong> to rotate it. <strong>Flip</strong> mirrors the selected piece.</li>
+<li>On a keyboard: R rotates, F flips, and the arrow keys move the selected piece.</li>
+<li>Each level has exactly one solution. Your progress is saved in your browser.</li>
+</ul>
+<p><a class="cta" href="/">Play today’s Catch Otto</a></p>`,
+  scripts: `<script src="/assets/tight-fit.js"></script>\n`,
+});
 pages.push({
   path: '/board/', label: 'Archive', title: 'Catch Otto Archive – All Past Boards and Answers',
   description: 'Every past Catch Otto board with its Perfect move count and the step by step solution.',

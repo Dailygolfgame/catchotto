@@ -50,3 +50,27 @@ footer nav a { font-size: 14px; }
 .archive a { text-decoration: none; font-weight: 500; }
 .archive span { color: var(--ink-dim); font-variant-numeric: tabular-nums; }
 .pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 28px; }
+
+/* Tight Fit */
+.tf { display: flex; flex-direction: column; gap: 14px; max-width: 480px; }
+.tf .levels { display: flex; gap: 6px; flex-wrap: wrap; }
+.tf .levels button { flex: 1 1 44px; min-width: 44px; height: 42px; border: 1px solid var(--line); background: var(--tile); color: var(--ink); font: 600 16px var(--font); border-radius: 2px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.tf .levels button.done { box-shadow: inset 0 -3px 0 var(--ink); }
+.tf .levels button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tf .status { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-variant-numeric: tabular-nums; }
+.tf .status strong { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+.tf .status span { color: var(--ink-dim); font-size: 15px; }
+#board { display: block; width: 100%; height: auto; background: var(--tile); border: 2px solid var(--ink); border-radius: 2px; touch-action: none; user-select: none; -webkit-user-select: none; }
+#board .tray { fill: var(--ink); stroke: var(--ink); }
+#board .trayline { stroke: #3a3936; stroke-width: .03; fill: none; }
+#board .dot { fill: var(--line); }
+#board .pc { cursor: grab; transition: transform .14s ease-out; outline: none; }
+#board .pc.drag { transition: none; cursor: grabbing; }
+#board .pc .f { fill: #ffffff; stroke: #ffffff; stroke-width: .02; }
+#board .pc .e { stroke: var(--ink); stroke-width: .09; stroke-linecap: round; fill: none; }
+#board .pc.sel .f { fill: #d9d5cc; stroke: #d9d5cc; }
+#board .pc:focus-visible .e { stroke-width: .16; }
+.tf .ctl { display: flex; gap: 8px; flex-wrap: wrap; }
+.tf .ctl button { flex: 1 1 90px; height: 46px; border-radius: 2px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 500 16px var(--font); cursor: pointer; }
+.tf .ctl button.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { #board .pc { transition: none; } }
