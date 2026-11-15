@@ -366,8 +366,12 @@
   $('btn-result').addEventListener('click', showWin);
   $('win-close').addEventListener('click', () => close('dlg-win'));
   $('btn-replay').addEventListener('click', showParRoute);
+  // Share opens the phone's share sheet where there is one; otherwise the result is copied.
+  const canShare = !!navigator.share;
+  $('btn-share').textContent = canShare ? 'Share' : 'Copy result';
   $('btn-share').addEventListener('click', () => {
     const text = shareText();
+    if (canShare) { navigator.share({ text }).catch(() => {}); return; }
     const done = () => toast('Result copied');
     try {
       navigator.clipboard.writeText(text).then(done, selectShare);

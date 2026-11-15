@@ -140,7 +140,11 @@ document.querySelectorAll('#unl-levels button').forEach(b=>b.onclick=()=>newUnli
 $('rot').onclick=()=>rotate(sel);$('flip').onclick=()=>flip(sel);
 $('reset').onclick=()=>{if(store.mode==='daily'&&day().solved)return;setMode(store.mode,true);};
 $('next').onclick=()=>newUnlimited();
-$('copy').onclick=()=>{const t=shareText(),ok=()=>{$('copy').textContent='Copied';setTimeout(()=>$('copy').textContent='Copy result',1500);};
+// Share opens the phone's share sheet where there is one; otherwise the result is copied.
+const canShare=!!navigator.share;
+$('copy').textContent=canShare?'Share':'Copy result';
+$('copy').onclick=()=>{const t=shareText(),label=canShare?'Share':'Copy result',ok=()=>{$('copy').textContent='Copied';setTimeout(()=>$('copy').textContent=label,1500);};
+  if(canShare){navigator.share({text:t}).catch(()=>{});return;}
   try{navigator.clipboard.writeText(t).then(ok,()=>{});}catch(e){}};
 document.addEventListener('keydown',e=>{if(e.target.tagName==='BUTTON'||e.target.tagName==='INPUT')return;if(e.key==='r'||e.key==='R')rotate(sel);if(e.key==='f'||e.key==='F')flip(sel);});
 setMode(store.mode==='unlimited'?'unlimited':'daily');

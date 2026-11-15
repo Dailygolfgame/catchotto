@@ -11,7 +11,7 @@ const ADS = '';
 const NAV = [['/tight-fit/', 'Tight Fit'], ['/how-to-play/', 'Rules'], ['/hint/', 'Hint'], ['/board/', 'Archive']];
 const FOOT = [['/', 'Play today’s board'], ['/how-to-play/', 'How to play'], ['/hint/', 'Today’s hint'], ['/board/', 'Past boards'], ['/tight-fit/', 'Tight Fit'], ['/about/', 'About'], ['/contact/', 'Contact'], ['/privacy/', 'Privacy policy']];
 
-function page({ path, title, description, label, h1, body, noindex, ads = true, scripts = '', jsonld = '', layout = '' }) {
+function page({ path, title, description, label, h1, body, noindex, ads = true, scripts = '', jsonld = '', layout = '', image = '/og-image.png' }) {
   const nav = NAV.map(([h, t]) => `<a href="${h}"${h === path ? ' aria-current="page"' : ''}>${t}</a>`).join('');
   const foot = FOOT.map(([h, t]) => `<a href="${h}">${t}</a>`).join('');
   return `<!doctype html>
@@ -25,9 +25,9 @@ function page({ path, title, description, label, h1, body, noindex, ads = true, 
 <link rel="canonical" href="${SITE}${path}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Catch Otto">
 <meta property="og:title" content="${title}"><meta property="og:description" content="${description}">
-<meta property="og:url" content="${SITE}${path}"><meta property="og:image" content="${SITE}/og-image.png">
+<meta property="og:url" content="${SITE}${path}"><meta property="og:image" content="${SITE}${image}">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${SITE}/og-image.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${SITE}${image}">
 <meta name="theme-color" content="#efeeea">
 <link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -205,7 +205,7 @@ for (const b of boards) {
   });
 }
 pages.push({
-  path: '/tight-fit/', label: 'Another puzzle', title: 'Tight Fit – A Daily Packing Puzzle | Catch Otto', layout: 'game',
+  path: '/tight-fit/', label: 'Another puzzle', title: 'Tight Fit – A Daily Packing Puzzle | Catch Otto', layout: 'game', image: '/og-tight-fit.png',
   description: 'Tight Fit is a free daily packing puzzle from Catch Otto. Every piece is the same shape: fit them all into the dark frame. New puzzle every day, plus unlimited play.',
   h1: 'Tight Fit.',
   body: `
