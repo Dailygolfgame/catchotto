@@ -111,6 +111,15 @@ footer nav a { font-size: 14px; }
 .game-main .h2 { margin: 0; font-size: 38px; font-weight: 600; letter-spacing: -.045em; line-height: 1.02; text-wrap: balance; }
 .game-main article p, .game-main article li { margin: 0; }
 @media (max-width: 380px) { .game-main .score .value { font-size: 32px; } .game-main .tf-pad { grid-template-columns: repeat(2, 92px); } }
+@media (max-width: 899px) {
+  .game-main { padding-block: 22px 40px; gap: 14px; }
+  .game-main .score .value { font-size: 34px; }
+  .game-main .tf-tabs button { height: 40px; }
+  .game-main .tf-tabs, .game-main #unl-levels { margin-bottom: 0; }
+  .game-main #unl-levels button { height: 36px; }
+  .game-main .tf-pad button { height: 46px; }
+  .game-main .controls { margin-top: 2px; }
+}
 @media (min-width: 900px) {
   .game-wrap { max-width: 1180px; }
   .game-main { display: grid; grid-template-columns: minmax(0, auto) minmax(300px, 1fr); column-gap: 64px; row-gap: 24px; align-items: start; }

@@ -3,7 +3,7 @@
 (function () {
 'use strict';
 const G = window.TightFitGen;
-const COLS=10,NS='http://www.w3.org/2000/svg';
+const COLS=12,NS='http://www.w3.org/2000/svg';
 const $=id=>document.getElementById(id);
 const pad2=x=>String(x).padStart(2,'0');
 const localDate=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
@@ -24,14 +24,25 @@ function legal(i,o,x,y){let inT=0;const cs=ors[o];
   return inT===0||inT===cs.length;}
 function nearest(i,o,x,y){let best=null,bd=1e9;for(let Y=0;Y<rows;Y++)for(let X=0;X<COLS;X++){const d=(X-x)**2+(Y-y)**2;if(d<bd&&legal(i,o,X,Y)){bd=d;best=[X,Y];}}return best;}
 const inTray=p=>traySet.has((ors[p.o][0][0]+p.x)+','+(ors[p.o][0][1]+p.y));
-function scatter(){pcs=[];const top=ty+Math.max(...L.tray.map(c=>c[1]))+2;
-  for(let i=0;i<L.n;i++){let placed=null;
-    for(const gap of [1,0]){for(let t=0;t<8&&!placed;t++){const o=(i*3+t)%8;
-      for(let Y=top;Y<rows&&!placed;Y++)for(let X=0;X<COLS&&!placed;X++){if(!legal(i,o,X,Y))continue;
-        let ok=true;if(gap)for(const [cx,cy] of ors[o])for(const q of pcs)for(const [a,b] of cellsOf(q))if(Math.abs(a-cx-X)<=1&&Math.abs(b-cy-Y)<=1)ok=false;
-        if(ok)placed={x:X,y:Y,o};}}
-      if(placed)break;}
-    pcs.push(placed||{x:0,y:top,o:0});}}
+// Lay the loose pieces out under the frame. gap=2: an empty square all round; gap=1: no shared edges (corners may touch).
+function scatter(gap){pcs=[];const top=ty+Math.max(...L.tray.map(c=>c[1]))+2;
+  const clear=(o,X,Y)=>{if(!gap)return true;for(const [cx,cy] of ors[o])for(const q of pcs)for(const [a,b] of cellsOf(q)){const dx=Math.abs(a-cx-X),dy=Math.abs(b-cy-Y);
+    if(gap===2?(dx<=1&&dy<=1):(dx+dy<=1))return false;}return true;};
+  for(let i=0;i<L.n;i++){let best=null;
+    // try every turn of the piece and keep the spot that reaches least far down
+    for(let o=0;o<8;o++){const h=Math.max(...ors[o].map(c=>c[1]));
+      let found=null;for(let Y=top;Y<rows&&!found;Y++)for(let X=0;X<COLS&&!found;X++)if(legal(i,o,X,Y)&&clear(o,X,Y))found={x:X,y:Y,o};
+      if(found){const k=(found.y+h)*100+found.y*COLS+found.x;if(!best||k<best.k)best={...found,k};}}
+    if(!best)return false;
+    pcs.push({x:best.x,y:best.y,o:best.o});}
+  return true;}
+// The smallest table that holds every piece, so the board stays short on phones.
+// Pieces never share an edge; they get a free square all round when that costs at most one row.
+function fitTable(th){
+  const minRows=gap=>{for(let T=3;T<=24;T++){rows=th+2+T;if(scatter(gap))return T;}return 99;};
+  const T1=minRows(1),T2=minRows(2),gap=T2<=T1+1?2:1,T=gap===2?T2:T1;
+  if(T>24){rows=th+2+24;scatter(0);return;}
+  rows=th+2+T;scatter(gap);}
 function shape(o){const cs=ors[o],s=new Set(cs.map(c=>c+''));let f='',e='';
   for(const [x,y] of cs){f+=`M${x} ${y}h1v1h-1z`;
     if(!s.has(x+','+(y-1)))e+=`M${x} ${y}h1`;if(!s.has(x+','+(y+1)))e+=`M${x} ${y+1}h1`;
@@ -80,14 +91,15 @@ const flip=i=>{if(!won)turn(i,pcs[i].o^4);};
 let loading=false;
 function load(puzzle,key,fresh){loading=true;L=puzzle;KEY=key;won=false;ors=orients(L.piece);
   const tw=Math.max(...L.tray.map(c=>c[0]))+1,th=Math.max(...L.tray.map(c=>c[1]))+1;tx=Math.floor((COLS-tw)/2);ty=1;
-  rows=th+2+Math.max(9,L.n*2-2);
+  rows=th+2+24;
   traySet=new Set(L.tray.map(([x,y])=>(x+tx)+','+(y+ty)));
+  pcs=[];fitTable(th);const fresh_pcs=pcs;
   board.setAttribute('viewBox',`-0.15 -0.15 ${COLS+.3} ${rows+.3}`);board.textContent='';
   for(let y=0;y<=rows;y++)for(let x=0;x<=COLS;x++)el('circle',{cx:x,cy:y,r:.035,class:'dot'},board);
   let d='';for(const [x,y] of L.tray)d+=`M${x+tx} ${y+ty}h1v1h-1z`;
   el('path',{d,class:'tray','stroke-width':.2,'stroke-linejoin':'round'},board);el('path',{d,class:'trayline'},board);
   pcs=[];const sv=store.pos[key];
-  if(!fresh&&sv&&sv.length===L.n){let ok=true;for(const [x,y,o] of sv){if(!ors[o]||!legal(-1,o,x,y)){ok=false;break;}pcs.push({x,y,o});}if(!ok)scatter();}else scatter();
+  if(!fresh&&sv&&sv.length===L.n){let ok=true;for(const [x,y,o] of sv){if(!ors[o]||!legal(-1,o,x,y)){ok=false;break;}pcs.push({x,y,o});}if(!ok)pcs=fresh_pcs;}else pcs=fresh_pcs;
   els=pcs.map((p,i)=>{const gEl=el('g',{class:'pc',tabindex:0,role:'button','aria-label':'Piece '+(i+1)},board);el('path',{class:'f'},gEl);el('path',{class:'e'},gEl);
     gEl.addEventListener('pointerdown',ev=>down(ev,i));gEl.addEventListener('focus',()=>select(i));
     gEl.addEventListener('keydown',ev=>{if(won)return;if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();rotate(i);}
