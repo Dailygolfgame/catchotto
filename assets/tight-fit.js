@@ -49,17 +49,19 @@ const fmt=ms=>{const t=Math.floor(ms/1000);return `${Math.floor(t/60)}:${pad2(t%
 function startClock(){if(store.mode==='daily'&&!day().solved&&!runningSince)runningSince=Date.now();}
 function stopClock(){if(runningSince){day().elapsed+=Date.now()-runningSince;runningSince=null;save();}}
 setInterval(()=>{if(store.mode==='daily')$('clock').textContent=fmt(clock());},500);
+
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopClock();});
 
 function status(){const n=pcs.filter(inTray).length,was=won;won=n===L.n;
-  $('cnt').textContent=n+' of '+L.n+' pieces in the frame';
+  $('cnt').textContent=n+'/'+L.n;
   const m=store.mode;
   if(m==='unlimited'){
     $('st').textContent=won?'Solved':L.level[0].toUpperCase()+L.level.slice(1);
     if(won&&!was)store.unl.solved++;
-    $('next').hidden=false;$('next').textContent='New puzzle';
+    $('next').hidden=false;$('daynum').textContent='Unlimited / '+L.level;
   }else{
-    $('st').textContent=won?'Solved':`#${G.dayNumber(TODAY)} · ${L.level[0].toUpperCase()+L.level.slice(1)}`;
+    $('st').textContent=won?'Solved':L.level[0].toUpperCase()+L.level.slice(1);
+    $('daynum').textContent=String(G.dayNumber(TODAY)).padStart(3,'0')+' / '+L.level;
     if(won&&!day().solved){stopClock();day().solved=true;day().time=day().elapsed;}
     $('next').hidden=true;
     $('daily-done').hidden=!won;
@@ -102,7 +104,7 @@ function down(ev,i){ev.preventDefault();if(won)return;const g=els[i],p=pcs[i];se
 // ---------- modes ----------
 function setMode(m,fresh){stopClock();store.mode=m;save();
   document.querySelectorAll('.tf-tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.mode===m));
-  $('unl-levels').hidden=m!=='unlimited';$('daily-bar').hidden=m!=='daily';$('daily-done').hidden=true;
+  $('unl-levels').hidden=m!=='unlimited';$('daily-done').hidden=true;if(m!=='daily')$('clock').textContent='–';
   if(m==='daily'){load(G.daily(TODAY),'daily:'+TODAY,fresh);$('clock').textContent=fmt(clock());}
   else if(m==='unlimited'){load(G.generate(store.unl.seed,store.unl.level),'unl:'+store.unl.level+':'+store.unl.seed,fresh);
     document.querySelectorAll('#unl-levels button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.level===store.unl.level));}}

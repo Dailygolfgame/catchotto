@@ -11,7 +11,7 @@ const ADS = '';
 const NAV = [['/tight-fit/', 'Tight Fit'], ['/how-to-play/', 'Rules'], ['/hint/', 'Hint'], ['/board/', 'Archive']];
 const FOOT = [['/', 'Play today’s board'], ['/how-to-play/', 'How to play'], ['/hint/', 'Today’s hint'], ['/board/', 'Past boards'], ['/tight-fit/', 'Tight Fit'], ['/about/', 'About'], ['/contact/', 'Contact'], ['/privacy/', 'Privacy policy']];
 
-function page({ path, title, description, label, h1, body, noindex, ads = true, scripts = '', jsonld = '' }) {
+function page({ path, title, description, label, h1, body, noindex, ads = true, scripts = '', jsonld = '', layout = '' }) {
   const nav = NAV.map(([h, t]) => `<a href="${h}"${h === path ? ' aria-current="page"' : ''}>${t}</a>`).join('');
   const foot = FOOT.map(([h, t]) => `<a href="${h}">${t}</a>`).join('');
   return `<!doctype html>
@@ -37,13 +37,9 @@ function page({ path, title, description, label, h1, body, noindex, ads = true, 
 ${jsonld}${ads && ADS ? ADS + '\n' : ''}${GOAT}
 </head>
 <body>
-<div class="wrap">
+<div class="wrap${layout === 'game' ? ' game-wrap' : ''}">
 <header><a class="brand" href="/"><img src="/assets/otto.svg" alt=""><span class="mark">Catch<br>Otto</span></a><nav aria-label="Site">${nav}</nav></header>
-<main>
-<span class="label">${label}</span>
-<h1>${h1}</h1>
-${body}
-</main>
+${layout === 'game' ? `<main class="game-main">\n${body}\n` : `<main>\n<span class="label">${label}</span>\n<h1>${h1}</h1>\n${body}\n`}</main>
 <footer><nav aria-label="Site pages">${foot}</nav><span>Catch Otto © 2026. A small daily logic puzzle.</span></footer>
 </div>
 ${scripts}</body>
@@ -209,45 +205,64 @@ for (const b of boards) {
   });
 }
 pages.push({
-  path: '/tight-fit/', label: 'Another puzzle', title: 'Tight Fit – Pack the Pieces Puzzle | Catch Otto',
+  path: '/tight-fit/', label: 'Another puzzle', title: 'Tight Fit – A Daily Packing Puzzle | Catch Otto', layout: 'game',
   description: 'Tight Fit is a free daily packing puzzle from Catch Otto. Every piece is the same shape: fit them all into the dark frame. New puzzle every day, plus unlimited play.',
   h1: 'Tight Fit.',
   body: `
-<p class="lead">Every piece is the same shape. Fit them all into the dark frame. There is only one way. A new puzzle every day, and as many more as you like.</p>
-<div class="tf">
-  <div class="tf-tabs two" role="tablist" aria-label="Mode">
-    <button type="button" role="tab" data-mode="daily">Daily</button>
-    <button type="button" role="tab" data-mode="unlimited">Unlimited</button>
+<div class="score">
+  <div><span class="label">Pieces</span><span class="value" id="cnt">0/0</span></div>
+  <div><span class="label">Time</span><span class="value" id="clock">0:00</span></div>
+  <div><span class="label">Level</span><span class="value" id="st">–</span></div>
+</div>
+<div class="tf-tabs" role="tablist" aria-label="Mode">
+  <button type="button" role="tab" data-mode="daily">Daily</button>
+  <button type="button" role="tab" data-mode="unlimited">Unlimited</button>
+</div>
+<div class="levels" id="unl-levels" role="group" aria-label="Difficulty" hidden>
+  <button type="button" data-level="easy">Easy</button><button type="button" data-level="medium">Medium</button><button type="button" data-level="hard">Hard</button>
+</div>
+<svg id="board" xmlns="http://www.w3.org/2000/svg" aria-label="Puzzle board"></svg>
+<div class="controls">
+  <div class="side">
+    <button class="u" id="reset" type="button">Restart</button>
+    <button class="u" id="next" type="button" hidden>New puzzle</button>
   </div>
-  <div class="daily-bar" id="daily-bar"><span class="label">Today’s puzzle</span><span class="clock" id="clock">0:00</span></div>
-  <div class="levels" id="unl-levels" role="group" aria-label="Difficulty" hidden>
-    <button type="button" data-level="easy">Easy</button><button type="button" data-level="medium">Medium</button><button type="button" data-level="hard">Hard</button>
-  </div>
-  <div class="status"><strong id="st"></strong><span id="cnt"></span></div>
-  <div class="daily-done" id="daily-done" hidden>
-    <span class="label">Solved in</span><b id="done-time">0:00</b>
-    <pre class="share" id="share-text"></pre>
-    <button type="button" class="cta" id="copy">Copy result</button>
-    <p class="meta">A new puzzle every day at midnight. Want more now? Try Unlimited.</p>
-  </div>
-  <svg id="board" xmlns="http://www.w3.org/2000/svg" aria-label="Puzzle board"></svg>
-  <div class="ctl">
+  <div class="tf-pad">
     <button id="rot" type="button">Rotate</button>
     <button id="flip" type="button">Flip</button>
-    <button id="reset" type="button">Restart</button>
-    <button id="next" type="button" class="primary" hidden>Next</button>
   </div>
 </div>
-<h2>How to play</h2>
-<ul>
-<li><strong>Drag a piece</strong> to move it. Pieces snap to the grid.</li>
-<li><strong>Tap a piece</strong> to rotate it. <strong>Flip</strong> mirrors the selected piece.</li>
-<li>On a keyboard: R rotates, F flips, and the arrow keys move the selected piece.</li>
-<li><strong>Daily</strong> is the same puzzle for everyone, timed from your first move. Monday is easiest, weekends are hardest.</li>
-<li><strong>Unlimited</strong> makes a new puzzle whenever you want, at the level you choose.</li>
-<li>Every puzzle has exactly one solution. Your progress is saved in your browser.</li>
-</ul>
-<p><a class="cta" href="/">Play today’s Catch Otto</a></p>`,
+<div class="daily-done" id="daily-done" hidden>
+  <span class="label">Solved in</span><b id="done-time">0:00</b>
+  <pre class="share" id="share-text"></pre>
+  <button type="button" class="cta" id="copy">Copy result</button>
+</div>
+<p class="hint">Drag a piece to move it. Tap a piece to rotate it, and Flip mirrors the selected one. On a keyboard: R rotates, F flips, arrow keys move.</p>
+<div class="foot">
+  <a class="u" href="/">Play Catch Otto</a>
+  <span id="daynum"></span>
+</div>
+<article>
+  <section>
+    <span class="label">Introduction</span>
+    <h1 class="h2">A small daily puzzle about packing.</h1>
+    <p>Tight Fit gives you a dark frame and a handful of pieces that are all the same shape. Turn them, flip them and fit every one of them into the frame. It sounds easy until the last piece does not fit.</p>
+  </section>
+  <section>
+    <span class="label">How to play</span>
+    <ol>
+      <li><strong>Drag a piece</strong> to move it. Pieces snap to the grid.</li>
+      <li><strong>Tap a piece</strong> to rotate it, and use <strong>Flip</strong> to mirror it.</li>
+      <li><strong>Fill the frame.</strong> The puzzle is solved when every piece is inside.</li>
+    </ol>
+  </section>
+  <section>
+    <span class="label">Questions</span>
+    <p><strong>Is there always a solution?</strong> Yes, exactly one. Every puzzle is checked by a solver before you see it.</p>
+    <p><strong>When is the next puzzle?</strong> At midnight in your time zone. Monday is easiest and the weekend is hardest.</p>
+    <p><strong>Can I play more?</strong> Yes. Unlimited makes a new puzzle whenever you want, at the level you choose.</p>
+  </section>
+</article>`,
   scripts: `<script src="/assets/tight-fit-gen.js"></script><script src="/assets/tight-fit.js"></script>\n`,
 });
 pages.push({

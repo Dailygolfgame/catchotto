@@ -85,3 +85,41 @@ footer nav a { font-size: 14px; }
 .daily-done b { font-size: 44px; font-weight: 600; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
 .daily-done .share { margin: 4px 0 0; font: 15px/1.5 var(--font); white-space: pre; border-left: 2px solid var(--ink); padding-left: 12px; }
 .daily-done .cta { margin-top: 6px; }
+
+/* Game pages (Tight Fit): same layout as the Catch Otto game page */
+.game-wrap { max-width: 460px; }
+.game-main { padding-block: 34px 48px; display: flex; flex-direction: column; gap: 22px; }
+.game-main .score { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.game-main .score div { display: flex; flex-direction: column; gap: 2px; }
+.game-main .score div:last-child { text-align: right; }
+.game-main .score .value { font-size: 40px; font-weight: 600; letter-spacing: -.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.game-main .tf-tabs { margin-bottom: -8px; }
+.game-main #unl-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: -8px; }
+.game-main #unl-levels button { height: 40px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 500 15px var(--font); border-radius: 2px; cursor: pointer; }
+.game-main #unl-levels button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.game-main .controls { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.game-main .side { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-bottom: 6px; }
+.u { font: inherit; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.game-main .tf-pad { display: grid; grid-template-columns: repeat(2, 108px); gap: 6px; }
+.game-main .tf-pad button { height: 52px; border: 1px solid var(--line); border-radius: 2px; background: transparent; color: var(--ink); font: 500 16px var(--font); cursor: pointer; }
+.game-main .tf-pad button:active { background: var(--tile-2); }
+.game-main .hint { font-size: 14px; color: var(--ink-dim); margin: 0; max-width: 40ch; }
+.game-main .foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-block: 18px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.game-main .foot span { font-size: 15px; letter-spacing: .14em; font-variant-numeric: tabular-nums; text-transform: uppercase; }
+.game-main article { display: flex; flex-direction: column; gap: 14px; padding-top: 40px; }
+.game-main article section { display: flex; flex-direction: column; gap: 14px; padding-bottom: 36px; }
+.game-main .h2 { margin: 0; font-size: 38px; font-weight: 600; letter-spacing: -.045em; line-height: 1.02; text-wrap: balance; }
+.game-main article p, .game-main article li { margin: 0; }
+@media (max-width: 380px) { .game-main .score .value { font-size: 32px; } .game-main .tf-pad { grid-template-columns: repeat(2, 92px); } }
+@media (min-width: 900px) {
+  .game-wrap { max-width: 1180px; }
+  .game-main { display: grid; grid-template-columns: minmax(0, auto) minmax(300px, 1fr); column-gap: 64px; row-gap: 24px; align-items: start; }
+  .game-main #board { grid-column: 1; grid-row: 1 / span 8; height: max(560px, calc(100vh - 130px)); width: auto; max-width: 520px; }
+  .game-main .score, .game-main .tf-tabs, .game-main #unl-levels, .game-main .controls, .game-main .daily-done, .game-main .hint, .game-main .foot { grid-column: 2; }
+  .game-main .score { padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .game-main .score .value { font-size: 52px; }
+  .game-main .tf-tabs, .game-main #unl-levels { margin-bottom: 0; }
+  .game-main article { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; padding-top: 56px; border-top: 1px solid var(--line); margin-top: 24px; }
+  .game-main article section { padding-bottom: 0; }
+  .game-main .h2 { font-size: 34px; }
+}
