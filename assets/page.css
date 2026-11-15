@@ -123,3 +123,16 @@ footer nav a { font-size: 14px; }
   .game-main article section { padding-bottom: 0; }
   .game-main .h2 { font-size: 34px; }
 }
+
+/* Win dialog (game pages) */
+.scrim { position: fixed; inset: 0; background: rgba(26, 26, 25, .35); display: grid; place-items: center; z-index: 20;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.dialog { width: 100%; max-width: 420px; max-height: 100%; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 28px 24px; display: flex; flex-direction: column; gap: 16px; }
+.dialog p { margin: 0; color: var(--ink-dim); }
+.dialog .result-big { font-size: 64px; font-weight: 600; letter-spacing: -.05em; line-height: .95; font-variant-numeric: tabular-nums; }
+.dialog .share { margin: 0; font: 15px/1.5 var(--font); white-space: pre; border-left: 2px solid var(--ink); padding-left: 12px; }
+.dialog .row { display: flex; gap: 10px; flex-wrap: wrap; }
+.dialog .row > button { flex: 1; margin: 0; }
+.dialog .cta { margin: 0; align-self: auto; }
+.dialog .ghost { border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 12px 18px; border-radius: 2px; font: inherit; cursor: pointer; }
+.dialog .u { align-self: flex-start; }

@@ -226,16 +226,12 @@ pages.push({
   <div class="side">
     <button class="u" id="reset" type="button">Restart</button>
     <button class="u" id="next" type="button" hidden>New puzzle</button>
+    <button class="u" id="result" type="button" hidden>Result</button>
   </div>
   <div class="tf-pad">
     <button id="rot" type="button">Rotate</button>
     <button id="flip" type="button">Flip</button>
   </div>
-</div>
-<div class="daily-done" id="daily-done" hidden>
-  <span class="label">Solved in</span><b id="done-time">0:00</b>
-  <pre class="share" id="share-text"></pre>
-  <button type="button" class="cta" id="copy">Copy result</button>
 </div>
 <p class="hint">Drag a piece to move it. Tap a piece to rotate it, and Flip mirrors the selected one. On a keyboard: R rotates, F flips, arrow keys move.</p>
 <div class="foot">
@@ -262,7 +258,21 @@ pages.push({
     <p><strong>When is the next puzzle?</strong> At midnight in your time zone. Monday is easiest and the weekend is hardest.</p>
     <p><strong>Can I play more?</strong> Yes. Unlimited makes a new puzzle whenever you want, at the level you choose.</p>
   </section>
-</article>`,
+</article>
+<div class="scrim" id="dlg-win" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="win-title">
+    <span class="label" id="win-title">Solved</span>
+    <div class="result-big" id="win-time">0:00</div>
+    <p id="win-sub"></p>
+    <pre class="share" id="share-text"></pre>
+    <div class="row">
+      <button type="button" class="cta" id="copy">Copy result</button>
+      <button type="button" class="ghost" id="win-next">New puzzle</button>
+    </div>
+    <p id="win-countdown"></p>
+    <button type="button" class="u" id="win-close">Close</button>
+  </div>
+</div>`,
   scripts: `<script src="/assets/tight-fit-gen.js"></script><script src="/assets/tight-fit.js"></script>\n`,
 });
 pages.push({

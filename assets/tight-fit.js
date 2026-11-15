@@ -42,13 +42,14 @@ function draw(i){const p=pcs[i],g=els[i],[f,e]=shape(p.o);g.children[0].setAttri
   g.style.transform=`translate(${p.x}px,${p.y}px)`;g.classList.toggle('sel',i===sel);}
 
 // ---------- daily clock ----------
-let runningSince=null;
+let runningSince=null,unlRun={elapsed:0,solved:false};
 const day=()=>store.daily[TODAY]||(store.daily[TODAY]={elapsed:0,solved:false});
-const clock=()=>day().elapsed+(runningSince?Date.now()-runningSince:0);
+const cur=()=>store.mode==='daily'?day():unlRun;
+const clock=()=>cur().elapsed+(runningSince?Date.now()-runningSince:0);
 const fmt=ms=>{const t=Math.floor(ms/1000);return `${Math.floor(t/60)}:${pad2(t%60)}`;};
-function startClock(){if(store.mode==='daily'&&!day().solved&&!runningSince)runningSince=Date.now();}
-function stopClock(){if(runningSince){day().elapsed+=Date.now()-runningSince;runningSince=null;save();}}
-setInterval(()=>{if(store.mode==='daily')$('clock').textContent=fmt(clock());},500);
+function startClock(){if(!cur().solved&&!runningSince)runningSince=Date.now();}
+function stopClock(){if(runningSince){cur().elapsed+=Date.now()-runningSince;runningSince=null;save();}}
+setInterval(()=>{$('clock').textContent=fmt(clock());},500);
 
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopClock();});
 
@@ -57,17 +58,17 @@ function status(){const n=pcs.filter(inTray).length,was=won;won=n===L.n;
   const m=store.mode;
   if(m==='unlimited'){
     $('st').textContent=won?'Solved':L.level[0].toUpperCase()+L.level.slice(1);
-    if(won&&!was)store.unl.solved++;
+    if(won&&!was){stopClock();unlRun.solved=true;store.unl.solved++;}
     $('next').hidden=false;$('daynum').textContent='Unlimited / '+L.level;
   }else{
     $('st').textContent=won?'Solved':L.level[0].toUpperCase()+L.level.slice(1);
     $('daynum').textContent=String(G.dayNumber(TODAY)).padStart(3,'0')+' / '+L.level;
     if(won&&!day().solved){stopClock();day().solved=true;day().time=day().elapsed;}
     $('next').hidden=true;
-    $('daily-done').hidden=!won;
-    if(won){$('done-time').textContent=fmt(day().time||day().elapsed);$('share-text').textContent=shareText();}
   }
-  store.pos[KEY]=pcs.map(p=>[p.x,p.y,p.o]);save();}
+  $('result').hidden=!won;
+  store.pos[KEY]=pcs.map(p=>[p.x,p.y,p.o]);save();
+  if(won&&!was&&!loading)setTimeout(showWin,450);}
 function shareText(){return `Tight Fit #${G.dayNumber(TODAY)} 🧩\nSolved in ${fmt(day().time||day().elapsed)}\ncatchotto.com/tight-fit`;}
 function select(i){sel=i;els.forEach((g,j)=>g.classList.toggle('sel',j===i));}
 function turn(i,o){const p=pcs[i],a=ors[p.o],b=ors[o];const c=(cs,k)=>Math.max(...cs.map(q=>q[k]))/2;
@@ -76,7 +77,8 @@ function turn(i,o){const p=pcs[i],a=ors[p.o],b=ors[o];const c=(cs,k)=>Math.max(.
 const rotate=i=>{if(!won)turn(i,(pcs[i].o&4)|((pcs[i].o+1)&3));};
 const flip=i=>{if(!won)turn(i,pcs[i].o^4);};
 
-function load(puzzle,key,fresh){L=puzzle;KEY=key;won=false;ors=orients(L.piece);
+let loading=false;
+function load(puzzle,key,fresh){loading=true;L=puzzle;KEY=key;won=false;ors=orients(L.piece);
   const tw=Math.max(...L.tray.map(c=>c[0]))+1,th=Math.max(...L.tray.map(c=>c[1]))+1;tx=Math.floor((COLS-tw)/2);ty=1;
   rows=th+2+Math.max(9,L.n*2-2);
   traySet=new Set(L.tray.map(([x,y])=>(x+tx)+','+(y+ty)));
@@ -92,7 +94,7 @@ function load(puzzle,key,fresh){L=puzzle;KEY=key;won=false;ors=orients(L.piece);
       const m={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[ev.key];
       if(m){ev.preventDefault();const q=pcs[i];if(legal(i,q.o,q.x+m[0],q.y+m[1])){q.x+=m[0];q.y+=m[1];startClock();draw(i);status();}}});
     return gEl;});
-  sel=0;pcs.forEach((_,i)=>draw(i));status();}
+  sel=0;pcs.forEach((_,i)=>draw(i));status();loading=false;}
 function pt(ev){const r=board.getBoundingClientRect(),vb=board.viewBox.baseVal;return [vb.x+(ev.clientX-r.left)/r.width*vb.width,vb.y+(ev.clientY-r.top)/r.height*vb.height];}
 function down(ev,i){ev.preventDefault();if(won)return;const g=els[i],p=pcs[i];select(i);board.appendChild(g);g.setPointerCapture(ev.pointerId);
   const [sx,sy]=pt(ev),ox=sx-p.x,oy=sy-p.y;let moved=false,fx=p.x,fy=p.y;
@@ -101,11 +103,34 @@ function down(ev,i){ev.preventDefault();if(won)return;const g=els[i],p=pcs[i];se
     if(!moved){rotate(i);return;}const n=nearest(i,p.o,fx,fy);if(n){p.x=n[0];p.y=n[1];}startClock();draw(i);status();};
   g.addEventListener('pointermove',move);g.addEventListener('pointerup',up);g.addEventListener('pointercancel',up);}
 
+// ---------- win dialog ----------
+function close(){$('dlg-win').hidden=true;}
+function countdown(){const n=new Date(),t=new Date(n);t.setHours(24,0,0,0);const s=Math.max(0,Math.floor((t-n)/1000));
+  return `${pad2(Math.floor(s/3600))}:${pad2(Math.floor(s%3600/60))}:${pad2(s%60)}`;}
+function showWin(){
+  const daily=store.mode==='daily';
+  $('win-title').textContent=daily?`Tight Fit #${G.dayNumber(TODAY)} solved`:'Solved';
+  $('win-time').textContent=fmt(daily?(day().time||day().elapsed):unlRun.elapsed);
+  $('win-sub').textContent=daily?`Every piece fits. ${L.level[0].toUpperCase()+L.level.slice(1)} puzzle, ${L.n} pieces.`:`${L.level[0].toUpperCase()+L.level.slice(1)} puzzle, ${L.n} pieces.`;
+  $('share-text').hidden=!daily;$('copy').hidden=!daily;
+  if(daily)$('share-text').textContent=shareText();
+  $('win-next').textContent=daily?'Play Unlimited':'New puzzle';
+  $('win-next').className=daily?'ghost':'cta';
+  $('win-countdown').hidden=!daily;
+  if(daily)$('win-countdown').textContent='Next puzzle in '+countdown();
+  $('dlg-win').hidden=false;$('win-next').focus();}
+setInterval(()=>{if(!$('dlg-win').hidden&&store.mode==='daily')$('win-countdown').textContent='Next puzzle in '+countdown();},1000);
+$('win-close').onclick=close;
+$('dlg-win').addEventListener('click',e=>{if(e.target.id==='dlg-win')close();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+$('result').onclick=showWin;
+$('win-next').onclick=()=>{close();if(store.mode==='daily')setMode('unlimited');else newUnlimited();};
+
 // ---------- modes ----------
 function setMode(m,fresh){stopClock();store.mode=m;save();
   document.querySelectorAll('.tf-tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.mode===m));
-  $('unl-levels').hidden=m!=='unlimited';$('daily-done').hidden=true;if(m!=='daily')$('clock').textContent='–';
-  if(m==='daily'){load(G.daily(TODAY),'daily:'+TODAY,fresh);$('clock').textContent=fmt(clock());}
+  $('unl-levels').hidden=m!=='unlimited';close();if(m==='unlimited')unlRun={elapsed:0,solved:false};$('clock').textContent=fmt(clock());
+  if(m==='daily'){load(G.daily(TODAY),'daily:'+TODAY,fresh);}
   else if(m==='unlimited'){load(G.generate(store.unl.seed,store.unl.level),'unl:'+store.unl.level+':'+store.unl.seed,fresh);
     document.querySelectorAll('#unl-levels button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.level===store.unl.level));}}
 function newUnlimited(level){if(level)store.unl.level=level;store.unl.seed=(Math.random()*2**32)>>>0;save();setMode('unlimited',true);}
