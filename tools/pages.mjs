@@ -8,7 +8,7 @@ const SITE = 'https://catchotto.com';
 const GOAT = '<script data-goatcounter="https://catchotto.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>';
 // AdSense is paused for this site. To turn it on again, set ADS to the AdSense script tag.
 const ADS = '';
-const NAV = [['/how-to-play/', 'How to play'], ['/hint/', 'Hint'], ['/board/', 'Archive']];
+const NAV = [['/tight-fit/', 'Tight Fit'], ['/how-to-play/', 'Rules'], ['/hint/', 'Hint'], ['/board/', 'Archive']];
 const FOOT = [['/', 'Play today’s board'], ['/how-to-play/', 'How to play'], ['/hint/', 'Today’s hint'], ['/board/', 'Past boards'], ['/tight-fit/', 'Tight Fit'], ['/about/', 'About'], ['/contact/', 'Contact'], ['/privacy/', 'Privacy policy']];
 
 function page({ path, title, description, label, h1, body, noindex, ads = true, scripts = '', jsonld = '' }) {
