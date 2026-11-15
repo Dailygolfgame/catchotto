@@ -12,7 +12,11 @@ const NAV = [['/tight-fit/', 'Tight Fit'], ['/how-to-play/', 'Rules'], ['/hint/'
 const FOOT = [['/', 'Play today’s board'], ['/how-to-play/', 'How to play'], ['/hint/', 'Today’s hint'], ['/board/', 'Past boards'], ['/tight-fit/', 'Tight Fit'], ['/about/', 'About'], ['/contact/', 'Contact'], ['/privacy/', 'Privacy policy']];
 
 function page({ path, title, description, label, h1, body, noindex, ads = true, scripts = '', jsonld = '', layout = '', image = '/og-image.png' }) {
-  const nav = NAV.map(([h, t]) => `<a href="${h}"${h === path ? ' aria-current="page"' : ''}>${t}</a>`).join('');
+  // On game pages, Rules opens that game's own rules box instead of Catch Otto's rules page.
+  const nav = NAV.map(([h, t]) => {
+    const href = layout === 'game' && h === '/how-to-play/' ? '#rules' : h;
+    return `<a href="${href}"${h === path ? ' aria-current="page"' : ''}>${t}</a>`;
+  }).join('');
   const foot = FOOT.map(([h, t]) => `<a href="${h}">${t}</a>`).join('');
   return `<!doctype html>
 <html lang="en">
@@ -259,6 +263,19 @@ pages.push({
     <p><strong>Can I play more?</strong> Yes. Unlimited makes a new puzzle whenever you want, at the level you choose.</p>
   </section>
 </article>
+<div class="scrim" id="dlg-rules" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+    <span class="label">Rules</span>
+    <h3 id="rules-title">Tight Fit.</h3>
+    <ul class="rules">
+      <li><svg class="ico" viewBox="0 0 30 30" aria-hidden="true"><path d="M4 4h22v14h-8v8H4z" fill="#1a1a19"/></svg><span><b>Fill the dark frame.</b> Every piece is the same shape.</span></li>
+      <li><svg class="ico" viewBox="0 0 30 30" aria-hidden="true"><path d="M5 5h8v12h12v8H5z" fill="#fff" stroke="#1a1a19" stroke-width="2.5" stroke-linejoin="round"/></svg><span><b>Drag a piece</b> to move it. It snaps to the grid.</span></li>
+      <li><svg class="ico" viewBox="0 0 30 30" aria-hidden="true"><path d="M23 13a8 8 0 1 1-3-6.2M20 3v4h4" fill="none" stroke="#1a1a19" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Tap a piece</b> to rotate it. <b>Flip</b> mirrors the selected piece.</span></li>
+      <li><svg class="ico" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="#6f6e69" stroke-width="2" stroke-dasharray="3 3"/></svg><span><b>There is exactly one way</b> to fit them all. Daily is timed; Unlimited gives you as many puzzles as you like.</span></li>
+    </ul>
+    <button type="button" class="cta" id="rules-close">Start</button>
+  </div>
+</div>
 <div class="scrim" id="dlg-win" hidden>
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="win-title">
     <span class="label" id="win-title">Solved</span>

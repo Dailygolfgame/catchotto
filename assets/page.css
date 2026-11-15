@@ -145,3 +145,8 @@ footer nav a { font-size: 14px; }
 .dialog .cta { margin: 0; align-self: auto; }
 .dialog .ghost { border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 12px 18px; border-radius: 2px; font: inherit; cursor: pointer; }
 .dialog .u { align-self: flex-start; }
+.dialog h3 { margin: 0; font-size: 34px; font-weight: 600; letter-spacing: -.045em; line-height: 1.02; }
+.dialog .rules { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.dialog .rules li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start; color: var(--ink-dim); margin: 0; max-width: none; }
+.dialog .rules b { color: var(--ink); font-weight: 500; }
+.dialog .ico { width: 30px; height: 30px; display: block; }

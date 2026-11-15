@@ -138,6 +138,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
 $('result').onclick=showWin;
 $('win-next').onclick=()=>{close();if(store.mode==='daily')setMode('unlimited');else newUnlimited();};
 
+// ---------- rules box ----------
+function showRules(){$('dlg-rules').hidden=false;$('rules-close').focus();}
+function hideRules(){$('dlg-rules').hidden=true;}
+document.querySelectorAll('a[href="#rules"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showRules();}));
+$('rules-close').onclick=hideRules;
+$('dlg-rules').addEventListener('click',e=>{if(e.target.id==='dlg-rules')hideRules();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hideRules();});
+
 // ---------- modes ----------
 function setMode(m,fresh){stopClock();store.mode=m;save();
   document.querySelectorAll('.tf-tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.mode===m));
@@ -160,4 +168,6 @@ $('copy').onclick=()=>{const t=shareText(),label=canShare?'Share':'Copy result',
   try{navigator.clipboard.writeText(t).then(ok,()=>{});}catch(e){}};
 document.addEventListener('keydown',e=>{if(e.target.tagName==='BUTTON'||e.target.tagName==='INPUT')return;if(e.key==='r'||e.key==='R')rotate(sel);if(e.key==='f'||e.key==='F')flip(sel);});
 setMode(store.mode==='unlimited'?'unlimited':'daily');
+// first visit: show the rules once
+if(!store.seenRules||location.hash==='#rules'){store.seenRules=true;save();showRules();}
 })();
